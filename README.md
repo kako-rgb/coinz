@@ -1,0 +1,2 @@
+# coinz
+coin spin game
