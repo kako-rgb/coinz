@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Toss Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <button onclick="login()">Login</button>
+        <button onclick="signUp()">Sign Up</button>
+        <span>Tokens: <span id="tokenCount">10000</span></span>
+    </nav>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="container">
+        <div id="coinContainer">
+            <img id="coin" src="heads.png" alt="Coin" class="coin">
+        </div>
+
+        <div class="chips">
+            <img src="2.png" alt="2" onclick="placeBet(2)">
+            <img src="5.png" alt="5" onclick="placeBet(5)">
+            <img src="10.png" alt="10" onclick="placeBet(10)">
+            <img src="25.png" alt="25" onclick="placeBet(25)">
+            <img src="50.png" alt="50" onclick="placeBet(50)">
+            <img src="100.png" alt="100" onclick="placeBet(100)">
+        </div>
+
+        <div class="betControl">
+            <button id="cancelbet" onclick="cancelBet()">CANCEL BET</button>
+            <span id="CurrentWager">  Current Wager: <span id="wagerAmount">0</span></span>
+        </div>
+
+        <div class="buttons">
+            <button id="heads" onclick="startCoinToss('heads')">Heads</button>
+            <button id="tails" onclick="startCoinToss('tails')">Tails</button>
+        </div>
+
+        <div id="resultMessage" class="result-message"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
