@@ -11,12 +11,36 @@ body {
     color: white;
 }
 
-nav {
-    width: 100%;
+
+/* Navbar */
+.navbar {
     display: flex;
     justify-content: space-between;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    padding: 1em;
+    background-color: #333;
+    color: #fff;
+}
+
+.navbar .logo {
+    font-size: 1.5em;
+}
+
+.navbar .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1em;
+}
+
+.navbar .nav-links li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1em;
+    transition: color 0.3s;
+}
+
+.navbar .nav-links li a:hover {
+    color: #ddd;
 }
 
 .error-message {
