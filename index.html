@@ -8,37 +8,89 @@
 </head>
 <body>
     <nav>
-        <button onclick="login()">Login</button>
-        <button onclick="signUp()">Sign Up</button>
-        <button onclick="deposite()">Deposite</button>
-        <button onclick="withdraw()">Withdraw</button>
+        <button id="login-tab"class="mbtn"onclick="openModal('login-tab')">Login</button>
+        <button id="register-tab"class="mbtn"onclick="openModal('register-tab')">Sign Up</button>
+        <button id="deposit-tab"class="mbtn"onclick="openModal('deposit-tab')">account</button>
         <span>Tokens: <span id="tokenCount">10000</span></span>
     </nav>
 
     <div id="errorMessage" class="error-message"></div>
+  <!-- Login & Register Forms -->
+    <div class="form-container">
+        <!-- Login Form -->
+        <form id="loginForm" class="form">
+            <h2 id="logh">Login</h2>
+            <label for="loginEmail">Email/Phone:</label>
+            <input type="text" id="loginEmail" placeholder="Enter your email or phone" required>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <button id="logsubmit"type="submit">Login</button>
+            <p class="form-link"><a href="#" id="forgot-password-link">Forgot Password?</a></p>
+        </form>
 
-    <div class="container">
+        <!-- Register Form -->
+        <form id="registerForm" class="form" style="display: none;">
+            <h2 id="registerh">Register</h2>
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Choose a username" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" placeholder="Enter your phone number" required>
+            <label for="registerPassword">Password:</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required>
+            <button id="registerbt" type="submit">Register</button>
+        </form>
+        
+        <!-- Password Recovery Form -->
+        <form id="passwordRecoveryForm" class="form" style="display: none;">
+            <h2 id="pwdh">Password Recovery</h2>
+            <label for="recoveryEmail">Email/Phone:</label>
+            <input type="text" id="recoveryEmail" placeholder="Enter your email or phone" required>
+            <button id="recoverysubmit" type="submit">Send Recovery Link</button>
+            <p class="form-link"><a href="#" id="back-to-login">Back to Login</a></p>
+        </form>
+    </div>
+
+    <!-- Payment Section -->
+    <div class="payment-container">
+        <h2>Payment Options</h2>
+        <form id="paymentForm" class="form">
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" placeholder="Enter amount" required>
+            <label for="currency">Currency:</label>
+            <select id="currency">
+                <option value="KES">KSH</option>
+                <option value="USD">USD</option>
+            </select>
+            <button type="submit" id="depositbtn">Deposit</button>
+            <button type="button" id="withdrawButton">Withdraw</button>
+        </form>
+    </div>
+
+
+    <div id="maincont" class="container">
         <div id="coinContainer">
-            <img id="coin" src="heads.png" alt="Coin" class="coin">
+            <img id="coin" src="./images/heads.png" alt="Coin" class="coin">
         </div>
 
         <div class="chips">
-            <img src="2.png" alt="2" onclick="placeBet(2)">
-            <img src="5.png" alt="5" onclick="placeBet(5)">
-            <img src="10.png" alt="10" onclick="placeBet(10)">
-            <img src="25.png" alt="25" onclick="placeBet(25)">
-            <img src="50.png" alt="50" onclick="placeBet(50)">
-            <img src="100.png" alt="100" onclick="placeBet(100)">
+            <img src="./images/2.png" alt="2" onclick="placeBet(2)">
+            <img src="./images/5.png" alt="5" onclick="placeBet(5)">
+            <img src="./images/10.png" alt="10" onclick="placeBet(10)">
+            <img src="./images/25.png" alt="25" onclick="placeBet(25)">
+            <img src="./images/50.png" alt="50" onclick="placeBet(50)">
+            <img src="./images/100.png" alt="100" onclick="placeBet(100)">
         </div>
 
         <div class="betControl">
             <button id="cancelbet" onclick="cancelBet()">CANCEL BET</button>
-            <span id="CurrentWager">  Current Bet: <span id="wagerAmount">0</span></span>
+            <span id="CurrentWager">  Current Wager: <span id="wagerAmount">0</span></span>
         </div>
 
         <div class="buttons">
-            <button id="heads" onclick="startCoinToss('heads')">Heads</button>
-            <button id="tails" onclick="startCoinToss('tails')">Tails</button>
+            <button id="heads" onclick="startCoinToss('heads')">HEADS</button>
+            <button id="tails" onclick="startCoinToss('tails')">TAILS</button>
         </div>
 
         <div id="resultMessage" class="result-message"></div>

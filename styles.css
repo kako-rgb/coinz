@@ -4,45 +4,161 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-image: url('background2.jpg');
+    background-image: url('./images/background2.jpg');
     background-repeat: no-repeat;
     background-size: 100vh;
     background-size: cover;
     color: white;
 }
 
-
-/* Navbar */
-.navbar {
+nav {
+    width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 1em;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    
+}
+.mbtn{
+    width: 85px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    border: none;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+}
+.mbtn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    transform: scale(1.05);
+}
+#login-tab{
+    background-color: aqua;
+}
+#login-tab:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: aqua;
+    transform: scale(1.05);
+}
+#register-tab{
+    background-color: yellow;
+}
+#register-tab:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: yellow;
+    transform: scale(1.05);
+}
+
+#deposit-tab{
+    background-color: rgb(30, 255, 0);
+}
+#deposit-tab:hover {
+    background-color: white;
+    color: rgb(30, 255, 0);
+    transform: scale(1.05);
+}
+.modal{
+    display: none;
+}
+#tokenCount{
+    color: gold;
+    background-color: rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+}
+#maincont{
+    margin-top: -50px;
+}
+#loginForm{
+    display: none;
     background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
+    margin-top: -330px;
+    transform: translateY(330px);
 }
-
-.navbar .logo {
-    font-size: 1.5em;
+#paymentForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: -330px;
+    transform: translateY(330px);
 }
-
-.navbar .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 3em;
+#withdrawButton{
+    background-color:rgb(30, 255, 0);
+    font-size: 16px;
+    text-transform: uppercase;
 }
-
-.navbar .nav-links li a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1em;
-    transition: color 0.3s;
+#depositbtn{
+    background-color:aqua;
+    color: black;
+    font-weight: bolder;
+    font-size: 16px;
+    text-transform: uppercase;
 }
-
-.navbar .nav-links li a:hover {
-    color: #ddd;
+paymentForm
+#logh{
+    color: aqua;
 }
+#logsubmit{
+    background-color: aqua;
+    font-size: 16px;
+}
+#logsubmit:hover {
+    background-color: white;
+    color: aqua;
+    transform: scale(1.05);
+}
+#forgot-password-link{
+    color: red;
+}
+#registerForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: -370px;
+    transform: translateY(360px);
+}
+#registerh{
+    color: yellow;
+}
+#registerbt{
+    background-color: yellow;
+    color: black;
+}
+#registerbt:hover {
+    background-color: white;
+    color: black;
+    font-size: 16;
+    transform: scale(1.05);
+}
+#passwordRecoveryForm{
+    background-color:rgba(255, 0, 0, 0.2); 
+    margin-top: -260px;
+    transform: translateY(280px);
+}
+#pwdh{
+    color: yellow;
+    background-color: rgba(255, 0, 0, 0.5);
+    border-radius: 5px;
+}
+#recoverysubmit{
+    background-color: rgba(255, 0, 0, 0.5);
+}
+#back-to-login{
+    color: yellow;
+    font-weight: bold;
+    font-size: 16px;
+    background-color: rgba(255, 0, 0, 0.7);
+    border-radius: 5px;
+    padding: 10px;
+   
 
+}
+#paymentForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.payment-container h2{
+    display: none;
+}
 .error-message {
     color: red;
     text-align: center;
@@ -86,28 +202,113 @@ body {
     border-radius: 5.5px;
 }
 #wagerAmount{
-color: blue;
+color: green;
 font-size: 2rem;
+background-color: rgba(0, 0, 0, 0.8);
+font-weight: bold;
+padding: 5px;
+border-radius: 5px;
 }
 #CurrentWager{
-    font-size: 2rem;
+    font-size: 1rem;
     color: yellow;
+    margin-top: 20px;
 }
+
+/* Form Container */
+.form-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2em;
+}
+
+/* Payment Container */
+.payment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2em;
+}
+
+/* Form Styling */
+.form {
+    width: 300px;
+    padding: 2em;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0 1em;
+}
+
+.form h2 {
+    margin-bottom: 1em;
+    font-size: 1.5em;
+    text-align: center;
+}
+
+.form label {
+    margin-top: 1em;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.form input, .form select {
+    width: 100%;
+    padding: 0.5em;
+    margin-top: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form button {
+    width: 100%;
+    padding: 0.75em;
+    margin-top: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #333;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form button:hover {
+    background-color: #555;
+}
+
+.form .form-link {
+    margin-top: 1em;
+    text-align: center;
+}
+
+.form .form-link a {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.form .form-link a:hover {
+    text-decoration: underline;
+}
+
 #heads{
 background-color: rgba(0, 0, 0, 0.7);
 color: white;
 font-weight: bold;
+font-size: 20px;
 width: 100px;
-height: 50px;
-border-radius: 5.5px;
+height: 40px;
+border-radius: 5px;
 }
 #tails{
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
+    font-size: 20px;
     font-weight: bold;
     width: 100px;
-    height: 50px;
-    border-radius: 5.5px;
+    height: 40px;
+    border-radius: 5px;
     }
 .result-message {
     font-size: 3em;
