@@ -118,10 +118,11 @@ document.getElementById('withdrawButton').addEventListener('click', async () => 
     }
 });
 
-
 let tokens = 10000;
 let wagerAmount = 0;
 let isSpinning = false;
+let attemptCount = 0; // To track the current cycle
+let lastWagerAmount = 0; // To detect wager changes
 
 document.getElementById("tokenCount").textContent = tokens;
 
@@ -180,7 +181,19 @@ function startCoinToss(choice) {
 }
 
 function determineOutcome(choice) {
-    const outcome = Math.random() < 0.5 ? "heads" : "tails";
+    // Reset cycle if the wager amount changes on the fourth attempt
+    if (attemptCount % 4 === 0 && lastWagerAmount !== wagerAmount) {
+        attemptCount = 0; // Restart the cycle
+    }
+    lastWagerAmount = wagerAmount; // Update last wager amount
+
+    // Determine outcome based on cycle
+    const cyclePattern = ["loss", "loss", "loss", "win"];
+    const outcomePattern = cyclePattern[attemptCount % 4];
+    const outcome = outcomePattern === "win" ? choice : choice === "heads" ? "tails" : "heads";
+
+    attemptCount++;
+
     const resultMessage = document.getElementById("resultMessage");
     const coin = document.getElementById("coin");
 
@@ -200,10 +213,3 @@ function determineOutcome(choice) {
     }, 200);
 }
 
-function login() {
-    alert("Login functionality coming soon!");
-}
-
-function signUp() {
-    alert("Sign Up functionality coming soon!");
-}
