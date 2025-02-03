@@ -1,6 +1,5 @@
-
 document.getElementById('login-tab').addEventListener('click', (e) => {
-    e.preventDefault(); // Prevent default anchor behavior
+    e.preventDefault();
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('registerForm').style.display = 'none';
     document.getElementById('paymentForm').style.display = 'none';
@@ -8,13 +7,12 @@ document.getElementById('login-tab').addEventListener('click', (e) => {
 });
 
 document.getElementById('deposit-tab').addEventListener('click', (e) => {
-    e.preventDefault(); // Prevent default anchor behavior
+    e.preventDefault();
     document.getElementById('paymentForm').style.display = 'block';
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('registerForm').style.display = 'none';
     document.getElementById('passwordRecoveryForm').style.display = 'none';
 });
-
 
 document.getElementById('register-tab').addEventListener('click', (e) => {
     e.preventDefault();
@@ -24,107 +22,112 @@ document.getElementById('register-tab').addEventListener('click', (e) => {
     document.getElementById('passwordRecoveryForm').style.display = 'none';
 });
 
-// Handle Password Recovery
 document.getElementById('forgot-password-link').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('passwordRecoveryForm').style.display = 'block';
     document.getElementById('loginForm').style.display = 'none';
 });
 
-// Back to Login
 document.getElementById('back-to-login').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('passwordRecoveryForm').style.display = 'none';
 });
 
-// Handle Login Form Submission
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const emailOrPhone = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-
-    // Call your login API here (replace with actual API endpoint)
     const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emailOrPhone, password })
     });
     const data = await response.json();
-    alert(data.message); // Handle response
+    alert(data.message);
 });
 
-// Handle Register Form Submission
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
     const phone = document.getElementById('phone').value;
     const password = document.getElementById('registerPassword').value;
-
-    // Call your register API here (replace with actual API endpoint)
     const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, phone, password })
     });
     const data = await response.json();
-    alert(data.message); // Handle response
+    alert(data.message);
 });
 
-// Handle Password Recovery Form Submission
 document.getElementById('passwordRecoveryForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const recoveryEmailOrPhone = document.getElementById('recoveryEmail').value;
-
-    // Call your password recovery API here (replace with actual API endpoint)
     const response = await fetch('/api/recover-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recoveryEmailOrPhone })
     });
     const data = await response.json();
-    alert(data.message); // Handle response
+    alert(data.message);
 });
 
-// Handle Payment Form Submission
 document.getElementById('paymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const amount = document.getElementById('amount').value;
     const currency = document.getElementById('currency').value;
-
-    // Call your payment API here (replace with actual API endpoint)
     const response = await fetch('/api/deposit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, currency })
     });
     const data = await response.json();
-    alert(data.message); // Handle response
+    alert(data.message);
 });
 
-// Handle Withdraw Button
 document.getElementById('withdrawButton').addEventListener('click', async () => {
     const amount = prompt("Enter the amount you wish to withdraw:");
     if (amount) {
-        // Call your withdraw API here (replace with actual API endpoint)
         const response = await fetch('/api/withdraw', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount })
         });
         const data = await response.json();
-        alert(data.message); // Handle response
+        alert(data.message);
     }
 });
 
 let tokens = 10000;
 let wagerAmount = 0;
 let isSpinning = false;
-let attemptCount = 0; // To track the current cycle
-let lastWagerAmount = 0; // To detect wager changes
+let attemptCount = 0;
+let lastWagerAmount = 0;
+let slowSpinInterval = null;
 
 document.getElementById("tokenCount").textContent = tokens;
+
+// Initialize slow spin on page load
+window.addEventListener('load', () => {
+    startSlowSpin();
+});
+
+function startSlowSpin() {
+    if (slowSpinInterval) return;
+    const coin = document.getElementById("coin");
+    let spinDegree = 0;
+    slowSpinInterval = setInterval(() => {
+        coin.style.transform = `rotateY(${spinDegree}deg)`;
+        spinDegree = (spinDegree + 1) % 360;
+    }, 20);
+}
+
+function stopSlowSpin() {
+    clearInterval(slowSpinInterval);
+    slowSpinInterval = null;
+}
 
 function placeBet(amount) {
     if (tokens >= amount) {
@@ -162,32 +165,31 @@ function startCoinToss(choice) {
         return;
     }
 
-    if (isSpinning) return; // Prevent multiple spins
+    if (isSpinning) return;
     isSpinning = true;
+    stopSlowSpin();
 
     const coin = document.getElementById("coin");
     let spins = 0;
-    const maxSpins = 10;
-    const interval = setInterval(() => {
+    const maxSpins = 30;
+    const fastSpinInterval = setInterval(() => {
         coin.src = spins % 2 === 0 ? "./images/heads.png" : "./images/tails.png";
         coin.style.transform = `rotateY(${spins * 180}deg)`;
         spins++;
 
         if (spins >= maxSpins) {
-            clearInterval(interval);
+            clearInterval(fastSpinInterval);
             determineOutcome(choice);
         }
-    }, 200);
+    }, 50);
 }
 
 function determineOutcome(choice) {
-    // Reset cycle if the wager amount changes on the fourth attempt
     if (attemptCount % 4 === 0 && lastWagerAmount !== wagerAmount) {
-        attemptCount = 0; // Restart the cycle
+        attemptCount = 0;
     }
-    lastWagerAmount = wagerAmount; // Update last wager amount
+    lastWagerAmount = wagerAmount;
 
-    // Determine outcome based on cycle
     const cyclePattern = ["loss", "loss", "loss", "win"];
     const outcomePattern = cyclePattern[attemptCount % 4];
     const outcome = outcomePattern === "win" ? choice : choice === "heads" ? "tails" : "heads";
@@ -199,6 +201,7 @@ function determineOutcome(choice) {
 
     setTimeout(() => {
         coin.src = outcome === "heads" ? "./images/heads.png" : "./images/tails.png";
+        coin.style.transform = `rotateY(${outcome === "heads" ? 0 : 180}deg)`;
         resultMessage.textContent = outcome === choice ? "YOU WON!" : "Try again!";
         resultMessage.style.display = "block";
 
@@ -209,7 +212,7 @@ function determineOutcome(choice) {
         setTimeout(() => {
             resultMessage.style.display = "none";
             isSpinning = false;
+            startSlowSpin();
         }, 3000);
     }, 200);
 }
-
