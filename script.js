@@ -219,37 +219,3 @@ function determineOutcome(choice) {
     }, 200);
 }
 
-// Add CSS for 3D coin edge (should be in your CSS file)
-const style = document.createElement('style');
-style.textContent = `
-    .coin-container {
-        perspective: 1000px;
-        margin: 20px auto;
-    }
-    
-    #coin {
-        width: 150px;
-        height: 150px;
-        position: relative;
-        transform-style: preserve-3d;
-    }
-    
-    #coin::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to right, #c9b037, #d4af37, #e5bf3f);
-        border-radius: 50%;
-        transform: translateZ(-5px);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    
-    #coin img {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-    }
-`;
-document.head.appendChild(style);
