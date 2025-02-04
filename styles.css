@@ -352,4 +352,3 @@ style.textContent = `
         backface-visibility: hidden;
     }
 `;
-document.head.appendChild(style);
