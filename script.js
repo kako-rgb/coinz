@@ -100,14 +100,12 @@ document.getElementById('withdrawButton').addEventListener('click', async () => 
     }
 });
 
-// Game variables
 let tokens = 10000;
 let wagerAmount = 0;
 let isSpinning = false;
 let attemptCount = 0;
-// cycleWager stores the wager that started the current forced cycle.
-// It remains in effect until a win occurs or the user increases the wager.
-let cycleWager = null;
+let lastWagerAmount = 0;
+let slowSpinInterval = null;
 
 document.getElementById("tokenCount").textContent = tokens;
 
@@ -189,26 +187,15 @@ function startCoinToss(choice) {
 }
 
 function determineOutcome(choice) {
-    // If no cycle is active, start one with the current wager.
-    if (cycleWager === null) {
-        cycleWager = wagerAmount;
-    }
-    // If the current wager exceeds the wager that started the cycle,
-    // then reset the cycle so that three losses must occur before a win.
-    if (wagerAmount > cycleWager) {
+    if (attemptCount % 4 === 0 && lastWagerAmount !== wagerAmount) {
         attemptCount = 0;
-        cycleWager = wagerAmount;
     }
+    lastWagerAmount = wagerAmount;
 
-    // Forced cycle: three losses then a win.
-    // On the fourth attempt (attemptCount % 4 === 3) the outcome will be a win.
-    const isWinAttempt = (attemptCount % 4 === 3);
-    let outcome;
-    if (isWinAttempt) {
-        outcome = choice;  // Win: coin lands as chosen.
-    } else {
-        outcome = (choice === "heads") ? "tails" : "heads";  // Loss: opposite result.
-    }
+    const cyclePattern = ["loss", "loss", "loss", "win"];
+    const outcomePattern = cyclePattern[attemptCount % 4];
+    const outcome = outcomePattern === "win" ? choice : choice === "heads" ? "tails" : "heads";
+
     attemptCount++;
 
     const resultMessage = document.getElementById("resultMessage");
@@ -220,13 +207,7 @@ function determineOutcome(choice) {
         resultMessage.textContent = outcome === choice ? "YOU WON!" : "Try again!";
         resultMessage.style.display = "block";
 
-        if (outcome === choice) {
-            // Award winnings (doubling the wager).
-            tokens += wagerAmount * 2;
-            // Reset cycle on win.
-            attemptCount = 0;
-            cycleWager = null;
-        }
+        if (outcome === choice) tokens += wagerAmount * 2;
         wagerAmount = 0;
         updateDisplay();
 
@@ -237,3 +218,4 @@ function determineOutcome(choice) {
         }, 3000);
     }, 200);
 }
+
