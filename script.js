@@ -219,3 +219,4 @@ function determineOutcome(choice) {
     }, 200);
 }
 
+document.head.appendChild(style);
