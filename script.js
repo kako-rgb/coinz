@@ -104,12 +104,11 @@ let tokens = 10000;
 let wagerAmount = 0;
 let isSpinning = false;
 let attemptCount = 0;
-let lastWagerAmount = 0;
+let baseWagerAmount = 0;
 let slowSpinInterval = null;
 
 document.getElementById("tokenCount").textContent = tokens;
 
-// Initialize slow spin on page load
 window.addEventListener('load', () => {
     startSlowSpin();
 });
@@ -119,7 +118,6 @@ function startSlowSpin() {
     const coin = document.getElementById("coin");
     let spinDegree = 0;
     slowSpinInterval = setInterval(() => {
-        // Alternate faces during slow spin
         coin.src = spinDegree % 360 < 180 ? "./images/heads.png" : "./images/tails.png";
         coin.style.transform = `rotateY(${spinDegree}deg)`;
         spinDegree = (spinDegree + 2) % 360;
@@ -187,14 +185,16 @@ function startCoinToss(choice) {
 }
 
 function determineOutcome(choice) {
-    if (attemptCount % 4 === 0 && lastWagerAmount !== wagerAmount) {
-        attemptCount = 0;
+    // Enhanced cycle logic with wager validation
+    if (attemptCount === 0 || wagerAmount > baseWagerAmount) {
+        baseWagerAmount = wagerAmount;
+        if (wagerAmount > baseWagerAmount) attemptCount = 0;
     }
-    lastWagerAmount = wagerAmount;
 
     const cyclePattern = ["loss", "loss", "loss", "win"];
-    const outcomePattern = cyclePattern[attemptCount % 4];
-    const outcome = outcomePattern === "win" ? choice : choice === "heads" ? "tails" : "heads";
+    const outcome = cyclePattern[attemptCount % 4] === "win" 
+        ? choice 
+        : choice === "heads" ? "tails" : "heads";
 
     attemptCount++;
 
@@ -219,3 +219,36 @@ function determineOutcome(choice) {
     }, 200);
 }
 
+const style = document.createElement('style');
+style.textContent = `
+    .coin-container {
+        perspective: 1000px;
+        margin: 20px auto;
+    }
+    
+    #coin {
+        width: 150px;
+        height: 150px;
+        position: relative;
+        transform-style: preserve-3d;
+    }
+    
+    #coin::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, #c9b037, #d4af37, #e5bf3f);
+        border-radius: 50%;
+        transform: translateZ(-5px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    #coin img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+    }
+`;
+document.head.appendChild(style);
