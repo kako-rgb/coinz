@@ -109,6 +109,7 @@ let slowSpinInterval = null;
 document.getElementById("tokenCount").textContent = tokens;
 
 window.addEventListener('load', () => {
+    addWinAnimationStyles();
     startSlowSpin();
 });
 
@@ -116,11 +117,14 @@ function startSlowSpin() {
     if (slowSpinInterval) return;
     const coin = document.getElementById("coin");
     let spinDegree = 0;
+    
+    // Use a more frequent interval with smaller increments for smoother animation
     slowSpinInterval = setInterval(() => {
         coin.src = spinDegree % 360 < 180 ? "./images/heads.png" : "./images/tails.png";
         coin.style.transform = `rotateY(${spinDegree}deg)`;
-        spinDegree = (spinDegree + 2) % 360;
-    }, 50);
+        // Smaller increment (1 degree instead of 2) for smoother rotation
+        spinDegree = (spinDegree + 1) % 360;
+    }, 30); // Faster refresh rate (30ms instead of 50ms)
 }
 
 function stopSlowSpin() {
@@ -213,9 +217,22 @@ function determineOutcome(choice) {
         resultMessage.textContent = outcome === choice ? "YOU WON!" : "Try again!";
         resultMessage.style.display = "block";
 
-        if (outcome === choice) tokens += wagerAmount * 2;
-        wagerAmount = 0;
-        updateDisplay();
+        // Handle win with animation
+        if (outcome === choice) {
+            const winAmount = wagerAmount * 2;
+            // Start win animation
+            showWinningAnimation(winAmount);
+            // Apply token glow effect and update tokens
+            applyTokenGlow();
+            // We'll update tokens slightly delayed to match animation
+            setTimeout(() => {
+                tokens += winAmount;
+                updateDisplay();
+            }, 500);
+        } else {
+            wagerAmount = 0;
+            updateDisplay();
+        }
 
         setTimeout(() => {
             resultMessage.style.display = "none";
@@ -223,6 +240,140 @@ function determineOutcome(choice) {
             startSlowSpin();
         }, 3000);
     }, 200);
+}
+
+// Function to show winning animation
+function showWinningAnimation(winAmount) {
+    // Create floating win amount element
+    const winCounter = document.createElement('div');
+    winCounter.className = 'win-counter';
+    document.body.appendChild(winCounter);
+    
+    // Get positions for animation
+    const coinElement = document.getElementById('coin');
+    const tokenCountElement = document.getElementById('tokenCount');
+    
+    const coinRect = coinElement.getBoundingClientRect();
+    const tokenRect = tokenCountElement.getBoundingClientRect();
+    
+    // Initial position over the coin
+    winCounter.style.left = `${coinRect.left + coinRect.width/2}px`;
+    winCounter.style.top = `${coinRect.top + coinRect.height/2}px`;
+    
+    // Animation variables
+    let currentDisplayValue = 0;
+    const duration = 2000; // 2 seconds
+    const startTime = Date.now();
+    
+    // Calculate start and end positions
+    const startX = coinRect.left + coinRect.width/2;
+    const startY = coinRect.top + coinRect.height/2;
+    const endX = tokenRect.left + tokenRect.width/2;
+    const endY = tokenRect.top + tokenRect.height/2;
+    
+    // Animation function
+    const animate = () => {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smoother motion
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        
+        // Calculate current position
+        const currentX = startX + (endX - startX) * easeOutCubic;
+        const currentY = startY + (endY - startY) * easeOutCubic;
+        
+        // Update counter value (increasing count)
+        currentDisplayValue = Math.min(Math.floor(winAmount * progress), winAmount);
+        winCounter.textContent = `+${currentDisplayValue}`;
+        
+        // Update position
+        winCounter.style.left = `${currentX}px`;
+        winCounter.style.top = `${currentY}px`;
+        
+        // Scale and fade based on progress
+        const scale = 1 + progress * 0.5;
+        const opacity = 1 - (progress * 0.7);
+        
+        winCounter.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        winCounter.style.opacity = opacity.toString();
+        
+        // Continue animation or end
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            // Add final burst effect
+            winCounter.classList.add('win-burst');
+            setTimeout(() => {
+                document.body.removeChild(winCounter);
+            }, 300);
+        }
+    };
+    
+    // Start animation
+    requestAnimationFrame(animate);
+    
+    // Clear wager immediately to prepare for next bet
+    wagerAmount = 0;
+}
+
+// Function to apply glowing effect to token counter
+function applyTokenGlow() {
+    const tokenCounter = document.getElementById('tokenCount');
+    // Remove any existing glow to ensure animation restarts
+    tokenCounter.classList.remove('token-glow');
+    // Force reflow
+    void tokenCounter.offsetWidth;
+    // Add glow class
+    tokenCounter.classList.add('token-glow');
+    
+    // Remove glow after 3 seconds
+    setTimeout(() => {
+        tokenCounter.classList.remove('token-glow');
+    }, 3000);
+}
+
+// Function to add styles for win animations
+function addWinAnimationStyles() {
+    const animationStyles = document.createElement('style');
+    animationStyles.textContent = `
+        .win-counter {
+            position: fixed;
+            font-size: 28px;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.4);
+            z-index: 1000;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+        }
+        
+        .win-burst {
+            animation: burstEffect 0.3s forwards;
+        }
+        
+        @keyframes burstEffect {
+            0% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(2); opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+        
+        .token-glow {
+            color: #FFD700 !important;
+            text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
+            animation: glowPulse 3s ease-in-out;
+        }
+        
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; }
+            25% { text-shadow: 0 0 15px #FFD700, 0 0 25px #FFD700, 0 0 35px #FFD700; color: white; }
+            50% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; color: #FFD700; }
+            75% { text-shadow: 0 0 15px #FFD700, 0 0 25px #FFD700, 0 0 35px #FFD700; color: white; }
+            100% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; color: inherit; }
+        }
+    `;
+    document.head.appendChild(animationStyles);
 }
 
 const style = document.createElement('style');
