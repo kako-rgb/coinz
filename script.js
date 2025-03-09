@@ -99,7 +99,6 @@ document.getElementById('withdrawButton').addEventListener('click', async () => 
         alert(data.message);
     }
 });
-
 let tokens = 10000;
 let wagerAmount = 0;
 let isSpinning = false;
@@ -185,17 +184,24 @@ function startCoinToss(choice) {
 }
 
 function determineOutcome(choice) {
-    // Enhanced cycle logic with wager validation
-    if (attemptCount === 0 || wagerAmount > baseWagerAmount) {
-        baseWagerAmount = wagerAmount;
-        if (wagerAmount > baseWagerAmount) attemptCount = 0;
+    // Check if wager has increased compared to previous wager
+    if (wagerAmount > baseWagerAmount) {
+        attemptCount = 0; // Reset the cycle when wager increases
     }
-
-    const cyclePattern = ["loss", "loss", "loss", "win"];
-    const outcome = cyclePattern[attemptCount % 4] === "win" 
-        ? choice 
-        : choice === "heads" ? "tails" : "heads";
-
+    
+    // Determine if this should be a win (4th attempt) or loss (1st, 2nd, 3rd attempts)
+    // Pattern: lose, lose, lose, win (0,1,2 = lose, 3 = win)
+    const shouldWin = attemptCount % 4 === 3;
+    
+    // Set outcome based on win/loss determination
+    const outcome = shouldWin 
+        ? choice // User's choice for a win
+        : (choice === "heads" ? "tails" : "heads"); // Opposite of user's choice for a loss
+    
+    // Update base wager amount for next comparison
+    baseWagerAmount = wagerAmount;
+    
+    // Increment attempt counter for next round
     attemptCount++;
 
     const resultMessage = document.getElementById("resultMessage");
