@@ -779,11 +779,11 @@ function showTryAgainMessage() {
     
     // Random selection of messages and animations
     const messages = [
-        "Try again!",
-        "Not this time!",
-        "Almost there!",
-        "Give it another shot!",
-        "Next time's the charm!"
+        "Try again champ!",
+        "Sorry Not this time!",
+        "You are Almost there!",
+        "Give it another Try!",
+        "Next time's the champ!"
     ];
     
     const animations = [
