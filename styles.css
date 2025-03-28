@@ -101,7 +101,7 @@ nav {
     border: 2px solid rgba(255, 215, 0, 0.3);
 }
 #maincont{
-    margin-top: 20px; /* Adjust based on nav height */
+    margin-top: -25px; /* Adjust based on nav height */
     padding: 0 10px; /* Add side padding */
     width: 100%;
     max-width: 1200px; /* Maximum width for larger screens */
