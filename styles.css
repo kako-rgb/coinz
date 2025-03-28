@@ -212,6 +212,7 @@ paymentForm
     width: 200px;
     height: 200px;
     margin: auto;
+    clear: both; /* Ensure it stays below the message */
 }
 
 .coin {
@@ -367,12 +368,14 @@ border-radius: 5px;
     }
 .result-message {
     font-size: 3em;
-    color: gold;
-    margin-top: 20px;
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px; /* Add space between message and coin */
     display: none;
-    position: absolute;
-    top: 30%;
-    width: 25%;
+    position: relative; /* Change from absolute to relative */
+    width: 100%; /* Full width */
+    font-weight: bold;
+    text-align: center; /* Ensure text is centered */
 }
 
 /* Add responsive adjustments */
