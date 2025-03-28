@@ -105,6 +105,7 @@ let isSpinning = false;
 let attemptCount = 0;
 let baseWagerAmount = 0;
 let slowSpinInterval = null;
+let previousWagerAmount = 0; // Add this variable at the top with other global variables
 
 function updateDisplay() {
     document.getElementById("tokenCount").textContent = tokens;
@@ -180,6 +181,7 @@ function placeBet(amount) {
     if (tokens >= amount) {
         wagerAmount += amount;
         tokens -= amount;
+        previousWagerAmount = wagerAmount; // Store the wager amount
         updateDisplay();
         
         // Add glow effect to wager amount
@@ -216,19 +218,10 @@ function stopSlowSpin() {
     slowSpinInterval = null;
 }
 
-function placeBet(amount) {
-    if (tokens >= amount) {
-        wagerAmount += amount;
-        tokens -= amount;
-        updateDisplay();
-    } else {
-        displayErrorMessage("Insufficient tokens.");
-    }
-}
-
 function cancelBet() {
     tokens += wagerAmount;
     wagerAmount = 0;
+    previousWagerAmount = 0; // Reset previous wager when canceling
     updateDisplay();
 }
 
@@ -248,13 +241,22 @@ function displayErrorMessage(message) {
 
 function startCoinToss(choice) {
     if (wagerAmount <= 0) {
-        displayErrorMessage("Please place a wager before playing.");
-        return;
+        // Check if there was a previous wager and if user has enough tokens
+        if (previousWagerAmount > 0 && tokens >= previousWagerAmount) {
+            // Place the previous bet amount
+            placeBet(previousWagerAmount);
+        } else {
+            displayErrorMessage("Please place a wager before playing.");
+            return;
+        }
     }
 
     if (isSpinning) return;
     isSpinning = true;
     stopSlowSpin();
+
+    // Store the current wager as previous wager before the game starts
+    previousWagerAmount = wagerAmount;
 
     const coin = document.getElementById("coin");
     let spins = 0;
