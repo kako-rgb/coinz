@@ -20,24 +20,34 @@
     <div class="form-container">
         <!-- Login Form -->
         <form id="loginForm" class="form">
+            <div class="close-btn">×</div>
             <h2 id="logh">Login</h2>
-            <label for="loginEmail">Email/Phone:</label>
-            <input type="text" id="loginEmail" placeholder="Enter your email or phone" required>
+            <label for="loginPhone">Phone Number:</label>
+            <div class="phone-input">
+                <select id="loginCountryCode" class="country-code">
+                    <!-- Will be populated by JavaScript -->
+                </select>
+                <input type="tel" id="loginPhone" placeholder="Enter phone number" required>
+            </div>
             <label for="loginPassword">Password:</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
-            <button id="logsubmit"type="submit">Login</button>
+            <button id="logsubmit" type="submit">Login</button>
             <p class="form-link"><a href="#" id="forgot-password-link">Forgot Password?</a></p>
         </form>
 
         <!-- Register Form -->
-        <form id="registerForm" class="form" style="display: none;">
+        <form id="registerForm" class="form">
+            <div class="close-btn">×</div>
             <h2 id="registerh">Register</h2>
             <label for="username">Username:</label>
             <input type="text" id="username" placeholder="Choose a username" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" placeholder="Enter your email" required>
             <label for="phone">Phone Number:</label>
-            <input type="text" id="phone" placeholder="Enter your phone number" required>
+            <div class="phone-input">
+                <select id="registerCountryCode" class="country-code">
+                    <!-- Will be populated by JavaScript -->
+                </select>
+                <input type="tel" id="phone" placeholder="Enter phone number" required>
+            </div>
             <label for="registerPassword">Password:</label>
             <input type="password" id="registerPassword" placeholder="Create a password" required>
             <button id="registerbt" type="submit">Register</button>
@@ -55,15 +65,37 @@
 
     <!-- Payment Section -->
     <div class="payment-container">
-        <h2>Payment Options</h2>
         <form id="paymentForm" class="form">
+            <div class="close-btn">×</div>
+            <h2>Payment Options</h2>
             <label for="amount">Amount:</label>
             <input type="number" id="amount" placeholder="Enter amount" required>
             <label for="currency">Currency:</label>
             <select id="currency">
-                <option value="KES">KSH</option>
-                <option value="USD">USD</option>
+                <!-- Will be populated by JavaScript -->
             </select>
+            <label for="paymentMethod">Payment Method:</label>
+            <select id="paymentMethod">
+                <option value="mobile">Mobile Money</option>
+                <option value="visa">Visa Card</option>
+            </select>
+            <div id="mobileMoneyFields">
+                <label for="phoneNumber">Phone Number:</label>
+                <div class="phone-input">
+                    <select id="paymentCountryCode" class="country-code">
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                    <input type="tel" id="phoneNumber" placeholder="Enter phone number">
+                </div>
+            </div>
+            <div id="visaFields" style="display: none;">
+                <label for="cardNumber">Card Number:</label>
+                <input type="text" id="cardNumber" placeholder="Enter card number">
+                <label for="expiryDate">Expiry Date:</label>
+                <input type="text" id="expiryDate" placeholder="MM/YY">
+                <label for="cvv">CVV:</label>
+                <input type="text" id="cvv" placeholder="CVV">
+            </div>
             <button type="submit" id="depositbtn">Deposit</button>
             <button type="button" id="withdrawButton">Withdraw</button>
         </form>

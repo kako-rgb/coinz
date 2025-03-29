@@ -477,3 +477,152 @@ border-radius: 5px;
     }
 }
 
+/* Overlay backdrop */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 9998; /* Just below the forms */
+    display: none;
+}
+
+/* Common styles for all popup forms */
+.form {
+    display: none;
+    position: absolute;
+    top: 60px; /* Position below menu */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 9999; /* Highest z-index for forms */
+    min-width: 320px;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    color: white;
+    transition: transform 0.3s ease-out;
+    transform: translateX(-50%) translateY(-100%);
+}
+
+.form.active {
+    transform: translateX(-50%) translateY(0);
+}
+
+
+/* Close button styling */
+.close-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    color: #ff4444;
+    font-size: 24px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 10000; /* Above the form */
+}
+
+.close-btn:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: scale(1.1);
+}
+
+/* Form input styling */
+.form input,
+.form select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    box-sizing: border-box;
+}
+
+.form input:focus,
+.form select:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+/* Phone input container */
+.phone-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.country-code {
+    width: 120px !important; /* Override the 100% width */
+}
+
+/* Form labels */
+.form label {
+    display: block;
+    margin-top: 10px;
+    color: #FFD700;
+    font-weight: bold;
+}
+
+/* Form buttons */
+.form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Payment form specific styles */
+#paymentForm {
+    max-width: 500px; /* Slightly wider for payment form */
+}
+
+#visaFields {
+    border-top: 1px solid rgba(255, 215, 0, 0.3);
+    margin-top: 15px;
+    padding-top: 15px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 600px) {
+    .form {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .phone-input {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .country-code {
+        width: 100% !important;
+    }
+}
+

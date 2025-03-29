@@ -1,3 +1,132 @@
+// Authentication and UI State Management
+let isLoggedIn = false;
+let currentUser = null;
+
+// Initialize country codes and currencies
+const initializeSelects = async () => {
+    // Fetch country codes and currencies from REST Countries API
+    const response = await fetch('https://restcountries.com/v3.1/all');
+    const countries = await response.json();
+    
+    // Populate country codes
+    const countryCodesHTML = countries
+        .map(country => {
+            const dialCode = country.idd?.root + (country.idd?.suffixes?.[0] || '');
+            return `<option value="${dialCode}">${country.cca2} (${dialCode})</option>`;
+        })
+        .join('');
+    
+    document.querySelectorAll('.country-code').forEach(select => {
+        select.innerHTML = countryCodesHTML;
+    });
+    
+    // Populate currencies
+    const currenciesHTML = countries
+        .flatMap(country => {
+            if (!country.currencies) return [];
+            return Object.entries(country.currencies)
+                .map(([code, currency]) => `<option value="${code}">${code} - ${currency.name}</option>`);
+        })
+        .join('');
+    
+    document.getElementById('currency').innerHTML = currenciesHTML;
+};
+
+// Close buttons functionality
+document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.closest('.form').style.display = 'none';
+    });
+});
+
+// Registration
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const countryCode = document.getElementById('registerCountryCode').value;
+    const phoneNumber = countryCode + document.getElementById('phone').value;
+    const password = document.getElementById('registerPassword').value;
+
+    try {
+        // TODO: Add your Firebase phone authentication here
+        /*
+        const confirmationResult = await firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier);
+        // Handle SMS verification
+        */
+        
+        // Store user data in Firestore
+        /*
+        await firebase.firestore().collection('users').doc(phoneNumber).set({
+            username,
+            phoneNumber,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        */
+    } catch (error) {
+        console.error('Registration error:', error);
+        alert('Registration failed. Please try again.');
+    }
+});
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const countryCode = document.getElementById('loginCountryCode').value;
+    const phoneNumber = countryCode + document.getElementById('loginPhone').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        // TODO: Add your Firebase phone authentication here
+        /*
+        const result = await firebase.auth().signInWithPhoneNumber(phoneNumber);
+        */
+        
+        isLoggedIn = true;
+        document.getElementById('deposit-tab').style.display = 'block';
+        document.getElementById('loginForm').style.display = 'none';
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed. Please try again.');
+    }
+});
+
+// Payment Processing
+document.getElementById('paymentMethod').addEventListener('change', (e) => {
+    const mobileFields = document.getElementById('mobileMoneyFields');
+    const visaFields = document.getElementById('visaFields');
+    
+    if (e.target.value === 'mobile') {
+        mobileFields.style.display = 'block';
+        visaFields.style.display = 'none';
+    } else {
+        mobileFields.style.display = 'none';
+        visaFields.style.display = 'block';
+    }
+});
+
+document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const amount = document.getElementById('amount').value;
+    const currency = document.getElementById('currency').value;
+    const paymentMethod = document.getElementById('paymentMethod').value;
+
+    // TODO: Add your payment processing API integration here
+    /*
+    if (paymentMethod === 'mobile') {
+        // Mobile money API integration
+    } else {
+        // Visa card API integration
+    }
+    */
+});
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSelects();
+    // Hide account tab initially
+    document.getElementById('deposit-tab').style.display = 'none';
+});
+
 document.getElementById('login-tab').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('loginForm').style.display = 'block';
@@ -98,6 +227,105 @@ document.getElementById('withdrawButton').addEventListener('click', async () => 
         const data = await response.json();
         alert(data.message);
     }
+});
+// Add this at the beginning of your script, after your existing variable declarations
+const overlay = createOverlay();
+
+function createOverlay() {
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    document.body.appendChild(overlay);
+    return overlay;
+}
+
+function showPopup(formId) {
+    const form = document.getElementById(formId);
+    overlay.style.display = 'block';
+    form.style.display = 'block';
+    // Trigger reflow before adding active class for animation
+    void form.offsetWidth;
+    form.classList.add('active');
+}
+
+function hidePopup(formId) {
+    const form = document.getElementById(formId);
+    form.classList.remove('active');
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        form.style.display = 'none';
+    }, 300);
+}
+
+// Update your existing tab click handlers
+document.getElementById('login-tab').addEventListener('click', (e) => {
+    e.preventDefault();
+    showPopup('loginForm');
+    hidePopup('registerForm');
+    hidePopup('paymentForm');
+    hidePopup('passwordRecoveryForm');
+});
+
+document.getElementById('deposit-tab').addEventListener('click', (e) => {
+    e.preventDefault();
+    showPopup('paymentForm');
+    hidePopup('loginForm');
+    hidePopup('registerForm');
+    hidePopup('passwordRecoveryForm');
+});
+
+document.getElementById('register-tab').addEventListener('click', (e) => {
+    e.preventDefault();
+    showPopup('registerForm');
+    hidePopup('loginForm');
+    hidePopup('paymentForm');
+    hidePopup('passwordRecoveryForm');
+});
+
+document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    showPopup('passwordRecoveryForm');
+    hidePopup('loginForm');
+});
+
+document.getElementById('back-to-login').addEventListener('click', (e) => {
+    e.preventDefault();
+    showPopup('loginForm');
+    hidePopup('passwordRecoveryForm');
+});
+
+// Update close button handlers
+document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const form = btn.closest('.form');
+        hidePopup(form.id);
+    });
+});
+
+// Click outside to close
+overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+        document.querySelectorAll('.form').forEach(form => {
+            hidePopup(form.id);
+        });
+    }
+});
+
+// Close on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.form').forEach(form => {
+            hidePopup(form.id);
+        });
+    }
+});
+
+// Initialize forms to be hidden on page load
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.form').forEach(form => {
+        form.style.display = 'none';
+    });
+    overlay.style.display = 'none';
 });
 let tokens = 10000;
 let wagerAmount = 0;
