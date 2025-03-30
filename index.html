@@ -8,12 +8,14 @@
     <link rel="icon" type="image/png" href="./images/heads.png">
 </head>
 <body>
-    <nav>
-        <button id="login-tab"class="mbtn"onclick="openModal('login-tab')">Login</button>
-        <button id="register-tab"class="mbtn"onclick="openModal('register-tab')">Sign Up</button>
-        <button id="deposit-tab"class="mbtn"onclick="openModal('deposit-tab')">account</button>
-        <span>Tokens: <span id="tokenCount">10000</span></span>
-    </nav>
+  
+<nav>
+    <button id="login-tab" class="mbtn" onclick="openModal('login-tab')">Login</button>
+    <button id="register-tab" class="mbtn" onclick="openModal('register-tab')">Sign Up</button>
+    <button id="deposit-tab" class="mbtn" onclick="openModal('deposit-tab')" style="display: none;">Account</button>
+    <button id="signout-tab" class="mbtn" onclick="signOut()" style="display: none;">Sign Out</button>
+    <span>Tokens: <span id="tokenCount">10000</span></span>
+</nav>
 
     <div id="errorMessage" class="error-message"></div>
   <!-- Login & Register Forms -->
@@ -130,7 +132,40 @@
 
         <div id="resultMessage" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1; pointer-events: none;"></div>
     </div>
-
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZwwhMT_6HLD7GzJQzU8zIM2YccypnmIk",
+            authDomain: "coinspin.firebaseapp.com",
+            projectId: "coinspin",
+            storageBucket: "coinspin.firebasestorage.app",
+            messagingSenderId: "455845963985",
+            appId: "1:455845963985:web:4201a1b6f884e57c1dbdf0"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+    
+        // Initialize reCAPTCHA verifier
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'registerbt', {
+            'size': 'invisible',
+            'callback': (response) => {
+                // reCAPTCHA solved, allow signInWithPhoneNumber.
+            }
+        });
+    
+        // Make auth functions available globally
+        window.auth = auth;
+        window.db = db;
+        window.signInWithPhoneNumber = signInWithPhoneNumber;
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

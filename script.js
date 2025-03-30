@@ -1,1078 +1,559 @@
-// Authentication and UI State Management
-let isLoggedIn = false;
+// Global variables
 let currentUser = null;
-
-// Initialize country codes and currencies
-const initializeSelects = async () => {
-    // Fetch country codes and currencies from REST Countries API
-    const response = await fetch('https://restcountries.com/v3.1/all');
-    const countries = await response.json();
-    
-    // Populate country codes
-    const countryCodesHTML = countries
-        .map(country => {
-            const dialCode = country.idd?.root + (country.idd?.suffixes?.[0] || '');
-            return `<option value="${dialCode}">${country.cca2} (${dialCode})</option>`;
-        })
-        .join('');
-    
-    document.querySelectorAll('.country-code').forEach(select => {
-        select.innerHTML = countryCodesHTML;
-    });
-    
-    // Populate currencies
-    const currenciesHTML = countries
-        .flatMap(country => {
-            if (!country.currencies) return [];
-            return Object.entries(country.currencies)
-                .map(([code, currency]) => `<option value="${code}">${code} - ${currency.name}</option>`);
-        })
-        .join('');
-    
-    document.getElementById('currency').innerHTML = currenciesHTML;
-};
-
-// Close buttons functionality
-document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        btn.closest('.form').style.display = 'none';
-    });
-});
-
-// Registration
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const countryCode = document.getElementById('registerCountryCode').value;
-    const phoneNumber = countryCode + document.getElementById('phone').value;
-    const password = document.getElementById('registerPassword').value;
-
-    try {
-        // TODO: Add your Firebase phone authentication here
-        /*
-        const confirmationResult = await firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier);
-        // Handle SMS verification
-        */
-        
-        // Store user data in Firestore
-        /*
-        await firebase.firestore().collection('users').doc(phoneNumber).set({
-            username,
-            phoneNumber,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        */
-    } catch (error) {
-        console.error('Registration error:', error);
-        alert('Registration failed. Please try again.');
-    }
-});
-
-// Login
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const countryCode = document.getElementById('loginCountryCode').value;
-    const phoneNumber = countryCode + document.getElementById('loginPhone').value;
-    const password = document.getElementById('loginPassword').value;
-
-    try {
-        // TODO: Add your Firebase phone authentication here
-        /*
-        const result = await firebase.auth().signInWithPhoneNumber(phoneNumber);
-        */
-        
-        isLoggedIn = true;
-        document.getElementById('deposit-tab').style.display = 'block';
-        document.getElementById('loginForm').style.display = 'none';
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('Login failed. Please try again.');
-    }
-});
-
-// Payment Processing
-document.getElementById('paymentMethod').addEventListener('change', (e) => {
-    const mobileFields = document.getElementById('mobileMoneyFields');
-    const visaFields = document.getElementById('visaFields');
-    
-    if (e.target.value === 'mobile') {
-        mobileFields.style.display = 'block';
-        visaFields.style.display = 'none';
-    } else {
-        mobileFields.style.display = 'none';
-        visaFields.style.display = 'block';
-    }
-});
-
-document.getElementById('paymentForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const amount = document.getElementById('amount').value;
-    const currency = document.getElementById('currency').value;
-    const paymentMethod = document.getElementById('paymentMethod').value;
-
-    // TODO: Add your payment processing API integration here
-    /*
-    if (paymentMethod === 'mobile') {
-        // Mobile money API integration
-    } else {
-        // Visa card API integration
-    }
-    */
-});
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    initializeSelects();
-    // Hide account tab initially
-    document.getElementById('deposit-tab').style.display = 'none';
-});
-
-document.getElementById('login-tab').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('registerForm').style.display = 'none';
-    document.getElementById('paymentForm').style.display = 'none';
-    document.getElementById('passwordRecoveryForm').style.display = 'none';
-});
-
-document.getElementById('deposit-tab').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('paymentForm').style.display = 'block';
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'none';
-    document.getElementById('passwordRecoveryForm').style.display = 'none';
-});
-
-document.getElementById('register-tab').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('registerForm').style.display = 'block';
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('paymentForm').style.display = 'none';
-    document.getElementById('passwordRecoveryForm').style.display = 'none';
-});
-
-document.getElementById('forgot-password-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('passwordRecoveryForm').style.display = 'block';
-    document.getElementById('loginForm').style.display = 'none';
-});
-
-document.getElementById('back-to-login').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('passwordRecoveryForm').style.display = 'none';
-});
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const emailOrPhone = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailOrPhone, password })
-    });
-    const data = await response.json();
-    alert(data.message);
-});
-
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    const password = document.getElementById('registerPassword').value;
-    const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, phone, password })
-    });
-    const data = await response.json();
-    alert(data.message);
-});
-
-document.getElementById('passwordRecoveryForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const recoveryEmailOrPhone = document.getElementById('recoveryEmail').value;
-    const response = await fetch('/api/recover-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recoveryEmailOrPhone })
-    });
-    const data = await response.json();
-    alert(data.message);
-});
-
-document.getElementById('paymentForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const amount = document.getElementById('amount').value;
-    const currency = document.getElementById('currency').value;
-    const response = await fetch('/api/deposit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, currency })
-    });
-    const data = await response.json();
-    alert(data.message);
-});
-
-document.getElementById('withdrawButton').addEventListener('click', async () => {
-    const amount = prompt("Enter the amount you wish to withdraw:");
-    if (amount) {
-        const response = await fetch('/api/withdraw', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount })
-        });
-        const data = await response.json();
-        alert(data.message);
-    }
-});
-// Add this at the beginning of your script, after your existing variable declarations
-const overlay = createOverlay();
-
-function createOverlay() {
-    const overlay = document.createElement('div');
-    overlay.className = 'overlay';
-    document.body.appendChild(overlay);
-    return overlay;
-}
-
-function showPopup(formId) {
-    const form = document.getElementById(formId);
-    overlay.style.display = 'block';
-    form.style.display = 'block';
-    // Trigger reflow before adding active class for animation
-    void form.offsetWidth;
-    form.classList.add('active');
-}
-
-function hidePopup(formId) {
-    const form = document.getElementById(formId);
-    form.classList.remove('active');
-    // Wait for animation to complete before hiding
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        form.style.display = 'none';
-    }, 300);
-}
-
-// Update your existing tab click handlers
-document.getElementById('login-tab').addEventListener('click', (e) => {
-    e.preventDefault();
-    showPopup('loginForm');
-    hidePopup('registerForm');
-    hidePopup('paymentForm');
-    hidePopup('passwordRecoveryForm');
-});
-
-document.getElementById('deposit-tab').addEventListener('click', (e) => {
-    e.preventDefault();
-    showPopup('paymentForm');
-    hidePopup('loginForm');
-    hidePopup('registerForm');
-    hidePopup('passwordRecoveryForm');
-});
-
-document.getElementById('register-tab').addEventListener('click', (e) => {
-    e.preventDefault();
-    showPopup('registerForm');
-    hidePopup('loginForm');
-    hidePopup('paymentForm');
-    hidePopup('passwordRecoveryForm');
-});
-
-document.getElementById('forgot-password-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    showPopup('passwordRecoveryForm');
-    hidePopup('loginForm');
-});
-
-document.getElementById('back-to-login').addEventListener('click', (e) => {
-    e.preventDefault();
-    showPopup('loginForm');
-    hidePopup('passwordRecoveryForm');
-});
-
-// Update close button handlers
-document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const form = btn.closest('.form');
-        hidePopup(form.id);
-    });
-});
-
-// Click outside to close
-overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-        document.querySelectorAll('.form').forEach(form => {
-            hidePopup(form.id);
-        });
-    }
-});
-
-// Close on escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.form').forEach(form => {
-            hidePopup(form.id);
-        });
-    }
-});
-
-// Initialize forms to be hidden on page load
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.form').forEach(form => {
-        form.style.display = 'none';
-    });
-    overlay.style.display = 'none';
-});
+let isLoggedIn = false;
 let tokens = 10000;
 let wagerAmount = 0;
 let isSpinning = false;
 let attemptCount = 0;
 let baseWagerAmount = 0;
 let slowSpinInterval = null;
-let previousWagerAmount = 0; // Add this variable at the top with other global variables
+let previousWagerAmount = 0;
 
-function updateDisplay() {
-    document.getElementById("tokenCount").textContent = tokens;
-    document.getElementById("wagerAmount").textContent = wagerAmount;
+// Add after your global variables
+
+function setupCloseButtons() {
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const form = e.target.closest('.form');
+            if (form) {
+                form.style.display = 'none';
+            }
+        });
+    });
 }
 
-function addParticleBackground() {
-    const particleContainer = document.createElement('div');
-    particleContainer.id = 'particle-background';
-    document.body.insertBefore(particleContainer, document.body.firstChild);
-
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'floating-particle';
-        particle.style.setProperty('--delay', `${Math.random() * 5}s`);
-        particle.style.setProperty('--size', `${Math.random() * 10 + 5}px`);
-        particleContainer.appendChild(particle);
-    }
-}
-function addParticleBackground() {
-    const particleContainer = document.createElement('div');
-    particleContainer.id = 'particle-background';
-    document.body.insertBefore(particleContainer, document.body.firstChild);
-
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'floating-particle';
-        particle.style.setProperty('--delay', `${Math.random() * 5}s`);
-        particle.style.setProperty('--size', `${Math.random() * 10 + 5}px`);
-        particleContainer.appendChild(particle);
-    }
-}
-
-// First, add this to your window.addEventListener('load', ...) function
-window.addEventListener('load', () => {
-    addWinAnimationStyles();
-    startSlowSpin();
-    addHighlightStyles(); // Add this new line
-    addParticleBackground();
-    addHoverEffects();
-});
-
-// Add this new function
-function addHighlightStyles() {
+function addWinAnimationStyles() {
     const style = document.createElement('style');
     style.textContent = `
-    addParticleBackground();
-    addHoverEffects();
-        @keyframes highlightWager {
-            0% { 
-                color: green;
-                transform: scale(1);
-            }
-            50% { 
-                color: #FFD700;
-                text-shadow: 0 0 10px #FFD700;
-                transform: scale(1.2);
-            }
-            100% { 
-                color: green;
-                transform: scale(1);
-            }
+        .win-animation {
+            animation: glow 0.5s ease-in-out infinite alternate;
         }
-
-        .highlight-wager {
-            animation: highlightWager 0.3s ease-out;
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0ff;
+            }
+            to {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0ff;
+            }
         }
     `;
     document.head.appendChild(style);
 }
 
+function addHighlightStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .highlight {
+            animation: highlight 0.5s ease-in-out;
+        }
+        
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add after your other animation style functions
+
+function addParticleBackground() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
+            animation: particle-animation 1s ease-out forwards;
+        }
+
+        @keyframes particle-animation {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    function createParticle(x, y) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.width = '10px';
+        particle.style.height = '10px';
+        particle.style.setProperty('--tx', (Math.random() * 100 - 50) + 'px');
+        particle.style.setProperty('--ty', (Math.random() * 100 - 50) + 'px');
+        
+        document.body.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 1000);
+    }
+
+    // Add click event listener to create particles
+    document.addEventListener('click', (e) => {
+        for (let i = 0; i < 5; i++) {
+            createParticle(e.clientX, e.clientY);
+        }
+    });
+}
+
+// Also add this function since it's mentioned in your code but not defined
+function addHoverEffects() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .mbtn:hover, button:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .coin:hover {
+            filter: brightness(1.2);
+            transition: filter 0.2s ease;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Coin Animation Functions
+function startSlowSpin() {
+    if (slowSpinInterval) return;
+    
+    const coin = document.getElementById("coin");
+    let slowSpins = 0;
+    
+    slowSpinInterval = setInterval(() => {
+        coin.src = slowSpins % 2 === 0 ? "./images/heads.png" : "./images/tails.png";
+        coin.style.transform = `rotateY(${slowSpins * 180}deg)`;
+        slowSpins++;
+    }, 2000); // Slow rotation every 2 seconds
+}
+
+function stopSlowSpin() {
+    if (slowSpinInterval) {
+        clearInterval(slowSpinInterval);
+        slowSpinInterval = null;
+    }
+}
+
+// Modal Functions
+function openModal(modalType) {
+    if (!currentUser && modalType === 'deposit-tab') {
+        displayErrorMessage("Please login first");
+        return;
+    }
+
+    // Hide all forms first
+    const forms = ['loginForm', 'registerForm', 'paymentForm', 'passwordRecoveryForm'];
+    forms.forEach(form => document.getElementById(form).style.display = 'none');
+
+    // Show the appropriate form
+    switch (modalType) {
+        case 'login-tab':
+            document.getElementById('loginForm').style.display = 'block';
+            break;
+        case 'register-tab':
+            document.getElementById('registerForm').style.display = 'block';
+            break;
+        case 'deposit-tab':
+            document.getElementById('paymentForm').style.display = 'block';
+            break;
+    }
+}
+
+function hidePopup(formId) {
+    document.getElementById(formId).style.display = 'none';
+}
+
+// Initialize Firebase Auth observer
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSelects();
+    startSlowSpin();
+    addWinAnimationStyles();
+    addHighlightStyles();
+    addParticleBackground();
+    addHoverEffects();
+    setupCloseButtons();
+
+    // Update the token display text
+    const tokenDisplay = document.querySelector('nav span');
+    const tokenCount = document.getElementById('tokenCount');
+
+    // Auth state observer
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            isLoggedIn = true;
+            document.getElementById('deposit-tab').style.display = 'block';
+            document.getElementById('signout-tab').style.display = 'block';
+            document.getElementById('login-tab').style.display = 'none';
+            document.getElementById('register-tab').style.display = 'none';
+            
+            // Change to "Balance" and load user's balance
+            tokenDisplay.firstChild.textContent = 'Balance: ';
+            loadUserData(user.uid);
+        } else {
+            currentUser = null;
+            isLoggedIn = false;
+            document.getElementById('deposit-tab').style.display = 'none';
+            document.getElementById('signout-tab').style.display = 'none';
+            document.getElementById('login-tab').style.display = 'block';
+            document.getElementById('register-tab').style.display = 'block';
+            
+            // Reset to demo tokens
+            tokenDisplay.firstChild.textContent = 'Demo Tokens: ';
+            tokens = 10000;
+            updateDisplay();
+        }
+    });
+});
+
+// Modify the initializeSelects function
+
+const initializeSelects = async () => {
+    try {
+        // Get user's location
+        const position = await getCurrentPosition();
+        const userCountry = await getUserCountry(position);
+        
+        const response = await fetch('https://restcountries.com/v3.1/all');
+        const countries = await response.json();
+        
+        // Find user's country data
+        const userCountryData = countries.find(country => country.cca2 === userCountry);
+        
+        // Populate country codes
+        const countryCodesHTML = countries
+            .map(country => {
+                const dialCode = country.idd?.root + (country.idd?.suffixes?.[0] || '');
+                const selected = country.cca2 === userCountry ? 'selected' : '';
+                return `<option value="${dialCode}" ${selected}>${country.cca2} (${dialCode})</option>`;
+            })
+            .join('');
+        
+        document.querySelectorAll('.country-code').forEach(select => {
+            select.innerHTML = countryCodesHTML;
+        });
+        
+        // Populate currencies with user's currency selected
+        const userCurrency = userCountryData?.currencies ? Object.keys(userCountryData.currencies)[0] : null;
+        const currenciesHTML = countries
+            .flatMap(country => {
+                if (!country.currencies) return [];
+                return Object.entries(country.currencies)
+                    .map(([code, currency]) => {
+                        const selected = code === userCurrency ? 'selected' : '';
+                        return `<option value="${code}" ${selected}>${code} - ${currency.name}</option>`;
+                    });
+            })
+            .join('');
+        
+        document.getElementById('currency').innerHTML = currenciesHTML;
+    } catch (error) {
+        console.error('Error initializing selects:', error);
+        displayErrorMessage('Error loading country data');
+    }
+};
+
+// Add these helper functions for geolocation
+
+function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported'));
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+}
+
+async function getUserCountry(position) {
+    try {
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        const data = await response.json();
+        return data.countryCode;
+    } catch (error) {
+        console.error('Error getting user country:', error);
+        return 'US'; // Default to US if geolocation fails
+    }
+}
+
+// Firebase Data Management
+async function loadUserData(userId) {
+    try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            tokens = userData.tokens || 10000;
+            updateDisplay();
+        }
+    } catch (error) {
+        displayErrorMessage("Error loading user data: " + error.message);
+    }
+}
+
+async function updateUserData() {
+    if (!currentUser) return;
+    try {
+        await db.collection('users').doc(currentUser.uid).set({
+            tokens: tokens,
+            lastUpdated: new Date()
+        }, { merge: true });
+    } catch (error) {
+        displayErrorMessage("Error updating user data: " + error.message);
+    }
+}
+
+// Replace the existing registration handler
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const countryCode = document.getElementById('registerCountryCode').value;
+    const phone = document.getElementById('phone').value;
+    const fullPhoneNumber = `${countryCode}${phone}`;
+
+    try {
+        // Send verification code
+        const confirmationResult = await window.signInWithPhoneNumber(window.auth, fullPhoneNumber, window.recaptchaVerifier);
+        
+        // Store confirmation result for later use
+        window.confirmationResult = confirmationResult;
+        
+        // Prompt for verification code
+        const code = prompt("Enter the verification code sent to your phone:");
+        
+        if (code) {
+            const result = await confirmationResult.confirm(code);
+            
+            // Create user document in Firestore
+            await window.db.collection('users').doc(result.user.uid).set({
+                username: username,
+                phone: fullPhoneNumber,
+                tokens: 0,
+                createdAt: new Date()
+            });
+            
+            hidePopup('registerForm');
+            displayErrorMessage("Registration successful!", "success");
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        displayErrorMessage(error.message);
+    }
+});
+
+// Update the login handler
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const countryCode = document.getElementById('loginCountryCode').value;
+    const phone = document.getElementById('loginPhone').value;
+    const fullPhoneNumber = `${countryCode}${phone}`;
+
+    try {
+        const confirmationResult = await window.signInWithPhoneNumber(window.auth, fullPhoneNumber, window.recaptchaVerifier);
+        window.confirmationResult = confirmationResult;
+        
+        const code = prompt("Enter the verification code sent to your phone:");
+        
+        if (code) {
+            await confirmationResult.confirm(code);
+            hidePopup('loginForm');
+            displayErrorMessage("Login successful!", "success");
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        displayErrorMessage(error.message);
+    }
+});
+
+function signOut() {
+    auth.signOut().then(() => {
+        displayErrorMessage("Signed out successfully!", "success");
+    }).catch((error) => {
+        displayErrorMessage("Error signing out: " + error.message);
+    });
+}
+
+// Payment Processing
+document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) {
+        displayErrorMessage("Please login first");
+        return;
+    }
+
+    const amount = Number(document.getElementById('amount').value);
+    
+    try {
+        await db.collection('transactions').add({
+            userId: currentUser.uid,
+            type: 'deposit',
+            amount: amount,
+            status: 'pending',
+            createdAt: new Date()
+        });
+
+        tokens += amount;
+        await updateUserData();
+        updateDisplay();
+        hidePopup('paymentForm');
+        displayErrorMessage("Deposit successful!", "success");
+    } catch (error) {
+        displayErrorMessage("Payment failed: " + error.message);
+    }
+});
+
+// Game Logic
 function placeBet(amount) {
     if (tokens >= amount) {
         wagerAmount += amount;
         tokens -= amount;
-        previousWagerAmount = wagerAmount; // Store the wager amount
+        previousWagerAmount = wagerAmount;
         updateDisplay();
         
-        // Add glow effect to wager amount
         const wagerElement = document.getElementById("wagerAmount");
         wagerElement.classList.remove('wager-glow');
-        // Force reflow
         void wagerElement.offsetWidth;
         wagerElement.classList.add('wager-glow');
     } else {
-        displayErrorMessage("Insufficient tokens.");
+        if (currentUser) {
+            displayErrorMessage("Insufficient balance. Please deposit to continue playing.");
+        } else {
+            displayErrorMessage("Insufficient demo tokens. Login to play with real money.");
+        }
     }
-}
-
-function startSlowSpin() {
-    if (slowSpinInterval) return;
-    const coin = document.getElementById("coin");
-    let spinDegree = 0;
-    
-    // Use a consistent interval for smooth animation
-    slowSpinInterval = setInterval(() => {
-        // Reverse the direction (negative degree for right to left)
-        spinDegree = (spinDegree - 1) % 360;
-        
-        // Update coin face based on rotation
-        coin.src = Math.abs(spinDegree % 360) < 180 ? "./images/heads.png" : "./images/tails.png";
-        
-        // Apply the rotation
-        coin.style.transform = `rotateY(${spinDegree}deg)`;
-    }, 30); // Keep the 30ms refresh rate for smoothness
-}
-
-function stopSlowSpin() {
-    clearInterval(slowSpinInterval);
-    slowSpinInterval = null;
 }
 
 function cancelBet() {
     tokens += wagerAmount;
     wagerAmount = 0;
-    previousWagerAmount = 0; // Reset previous wager when canceling
+    previousWagerAmount = 0;
     updateDisplay();
 }
 
-function updateDisplay() {
-    document.getElementById("tokenCount").textContent = tokens;
-    document.getElementById("wagerAmount").textContent = wagerAmount;
-}
-
-function displayErrorMessage(message) {
-    const errorMessage = document.getElementById("errorMessage");
-    errorMessage.innerText = message;
-    errorMessage.style.display = "block";
-    setTimeout(() => {
-        errorMessage.style.display = "none";
-    }, 3000);
-}
-
-function startCoinToss(choice) {
+async function startCoinToss(choice) {
     if (wagerAmount <= 0) {
-        // Check if there was a previous wager and if user has enough tokens
         if (previousWagerAmount > 0 && tokens >= previousWagerAmount) {
-            // Place the previous bet amount
             placeBet(previousWagerAmount);
         } else {
-            displayErrorMessage("Please place a wager before playing.");
+            displayErrorMessage("Please place a wager before playing");
             return;
         }
     }
 
+    // Only prevent new spins if the coin is actually spinning
     if (isSpinning) return;
+    
     isSpinning = true;
     stopSlowSpin();
 
-    // Store the current wager as previous wager before the game starts
     previousWagerAmount = wagerAmount;
 
     const coin = document.getElementById("coin");
     let spins = 0;
     const maxSpins = 30;
-    const fastSpinInterval = setInterval(() => {
+    const fastSpinInterval = setInterval(async () => {
         coin.src = spins % 2 === 0 ? "./images/heads.png" : "./images/tails.png";
         coin.style.transform = `rotateY(${spins * 180}deg)`;
         spins++;
 
         if (spins >= maxSpins) {
             clearInterval(fastSpinInterval);
-            determineOutcome(choice);
+            await determineOutcome(choice);
         }
     }, 50);
 }
 
-function determineOutcome(choice) {
-    // Check if wager has increased compared to previous wager
+async function determineOutcome(choice) {
     if (wagerAmount > baseWagerAmount) {
-        attemptCount = 0; // Reset the cycle when wager increases
+        attemptCount = 0;
     }
     
-    // Determine if this should be a win (4th attempt) or loss (1st, 2nd, 3rd attempts)
-    // Pattern: lose, lose, lose, win (0,1,2 = lose, 3 = win)
     const shouldWin = attemptCount % 4 === 3;
+    const outcome = shouldWin ? choice : (choice === "heads" ? "tails" : "heads");
     
-    // Set outcome based on win/loss determination
-    const outcome = shouldWin 
-        ? choice // User's choice for a win
-        : (choice === "heads" ? "tails" : "heads"); // Opposite of user's choice for a loss
-    
-    // Update base wager amount for next comparison
     baseWagerAmount = wagerAmount;
-    
-    // Increment attempt counter for next round
     attemptCount++;
 
-    const resultMessage = document.getElementById("resultMessage");
     const coin = document.getElementById("coin");
 
-    setTimeout(() => {
+    setTimeout(async () => {
         coin.src = outcome === "heads" ? "./images/heads.png" : "./images/tails.png";
         coin.style.transform = `rotateY(${outcome === "heads" ? 0 : 180}deg)`;
         
-        // Update result message styling
-        resultMessage.textContent = outcome === choice ? "YOU WON!" : "Try again!";
-        resultMessage.style.display = "block";
-        resultMessage.style.color = "#FFD700"; // Yellow color
-        resultMessage.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.5)";
-        resultMessage.style.fontWeight = "bold";
-        resultMessage.style.fontSize = "24px";
-
-        // Handle win/loss logic
         if (outcome === choice) {
             const winAmount = wagerAmount * 2;
             showWinningAnimation(winAmount);
-            applyTokenGlow();
-            setTimeout(() => {
+            setTimeout(async () => {
                 tokens += winAmount;
+                if (currentUser) {
+                    await updateUserData();
+                }
                 updateDisplay();
             }, 500);
         } else {
             showTryAgainMessage();
             wagerAmount = 0;
+            if (currentUser) {
+                await updateUserData();
+            }
             updateDisplay();
         }
 
-        setTimeout(() => {
-            resultMessage.style.display = "none";
-            isSpinning = false;
-            startSlowSpin();
-        }, 3000);
+        // Remove the isSpinning flag immediately after outcome
+        isSpinning = false;
+        startSlowSpin();
     }, 200);
 }
 
-// Function to show winning animation
-function showWinningAnimation(winAmount) {
-    const win3DContainer = document.createElement('div');
-    win3DContainer.className = 'win-3d-container';
-    
-    const winCounter = document.createElement('div');
-    winCounter.className = 'win-counter-3d';
-    
-    // Create 3D particles with slower animation
-    for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'win-particle-3d';
-        particle.style.setProperty('--random-z', `${Math.random() * 500 - 250}px`);
-        particle.style.setProperty('--random-rotate', `${Math.random() * 360}deg`);
-        win3DContainer.appendChild(particle);
-    }
-    
-    win3DContainer.appendChild(winCounter);
-    document.body.appendChild(win3DContainer);
-    
-    const coinElement = document.getElementById('coin');
-    const tokenCountElement = document.getElementById('tokenCount');
-    
-    const coinRect = coinElement.getBoundingClientRect();
-    const tokenRect = tokenCountElement.getBoundingClientRect();
-    
-    win3DContainer.style.left = `${coinRect.left + coinRect.width/2}px`;
-    win3DContainer.style.top = `${coinRect.top + coinRect.height/2}px`;
-    
-    let currentDisplayValue = 0;
-    // Increase duration by 70% (from 2000ms to 3400ms)
-    const duration = 3400; 
-    const startTime = Date.now();
-    
-    const startX = coinRect.left + coinRect.width/2;
-    const startY = coinRect.top + coinRect.height/2;
-    const endX = tokenRect.left + tokenRect.width/2;
-    const endY = tokenRect.top + tokenRect.height/2;
-    
-    // Create slower rotating 3D coins
-    for (let i = 0; i < 8; i++) {
-        const coin3D = document.createElement('div');
-        coin3D.className = 'coin-3d';
-        coin3D.style.setProperty('--random-angle', `${(i * 45) + Math.random() * 30}deg`);
-        win3DContainer.appendChild(coin3D);
-        
-        const coinFront = document.createElement('div');
-        coinFront.className = 'coin-face front';
-        const coinBack = document.createElement('div');
-        coinBack.className = 'coin-face back';
-        
-        coin3D.appendChild(coinFront);
-        coin3D.appendChild(coinBack);
-    }
-    
-    const animate = () => {
-        const now = Date.now();
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const easeOutBack = (x) => {
-            const c1 = 1.70158;
-            const c3 = c1 + 1;
-            return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
-        };
-        
-        const easeProgress = easeOutBack(progress);
-        
-        const currentX = startX + (endX - startX) * easeProgress;
-        const currentY = startY + (endY - startY) * easeProgress - Math.sin(progress * Math.PI) * 100;
-        const currentZ = Math.sin(progress * Math.PI) * 100;
-        
-        currentDisplayValue = Math.min(Math.floor(winAmount * progress), winAmount);
-        winCounter.textContent = `+${currentDisplayValue}`;
-        
-        win3DContainer.style.transform = `
-            translate3d(${currentX - startX}px, ${currentY - startY}px, ${currentZ}px)
-            rotate3d(1, 1, 0, ${progress * 720}deg)
-        `;
-        
-        const scale = 1 + easeProgress * 0.5;
-        const opacity = 1 - (easeProgress * 0.7);
-        
-        winCounter.style.transform = `scale3d(${scale}, ${scale}, ${scale})`;
-        winCounter.style.opacity = opacity.toString();
-        
-        if (progress < 1) {
-            requestAnimationFrame(animate);
-        } else {
-            win3DContainer.classList.add('win-burst-3d');
-            // Increase final burst duration
-            setTimeout(() => {
-                document.body.removeChild(win3DContainer);
-            }, 510); // Increased from 300ms to 510ms
-        }
-    };
-    
-    requestAnimationFrame(animate);
-    wagerAmount = 0;
-}
+// Include your existing animation and UI helper functions here
+// (showWinningAnimation, applyTokenGlow, addWinAnimationStyles, etc.)
 
-// Function to apply glowing effect to token counter
-function applyTokenGlow() {
-    const tokenCounter = document.getElementById('tokenCount');
-    // Remove any existing glow to ensure animation restarts
-    tokenCounter.classList.remove('token-glow');
-    // Force reflow
-    void tokenCounter.offsetWidth;
-    // Add glow class
-    tokenCounter.classList.add('token-glow');
-    
-    // Remove glow after 3 seconds
-    setTimeout(() => {
-        tokenCounter.classList.remove('token-glow');
-    }, 3000);
-}
-
-// Function to add styles for win animations
-function addWinAnimationStyles() {
-    const animationStyles = document.createElement('style');
-    animationStyles.textContent = `
-        .win-3d-container {
-            position: fixed;
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            pointer-events: none;
-            z-index: 1000;
-        }
-        
-        .win-counter-3d {
-            font-size: 28px;
-            font-weight: bold;
-            color: #FFD700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
-                         0 0 20px rgba(255, 215, 0, 0.4);
-            transform-style: preserve-3d;
-            backface-visibility: hidden;
-        }
-        
-        .win-particle-3d {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #FFD700;
-            border-radius: 50%;
-            transform-style: preserve-3d;
-            animation: particle3D 1.7s ease-out forwards; /* Increased from 1s to 1.7s */
-            transform: translateZ(var(--random-z)) rotate(var(--random-rotate));
-        }
-        
-        .coin-3d {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            transform-style: preserve-3d;
-            animation: coinSpin3D 1.7s ease-out forwards; /* Increased from 1s to 1.7s */
-            transform: rotate(var(--random-angle)) translateX(0px);
-        }
-        
-        .coin-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            backface-visibility: hidden;
-        }
-        
-        .coin-face.front {
-            background: radial-gradient(#FFD700, #FFA500);
-            transform: translateZ(2px);
-        }
-        
-        .coin-face.back {
-            background: radial-gradient(#DAA520, #B8860B);
-            transform: rotateY(180deg) translateZ(2px);
-        }
-        
-        @keyframes particle3D {
-            0% {
-                transform: translateZ(var(--random-z)) rotate(var(--random-rotate)) scale(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translateZ(var(--random-z)) rotate(var(--random-rotate)) scale(2);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes coinSpin3D {
-            0% {
-                transform: rotate(var(--random-angle)) translateX(0px);
-                opacity: 1;
-            }
-            100% {
-                transform: rotate(var(--random-angle)) translateX(100px) rotateY(720deg) rotateX(720deg);
-                opacity: 0;
-            }
-        }
-        
-        .win-burst-3d {
-            animation: burst3D 0.51s forwards; /* Increased from 0.3s to 0.51s */
-        }
-        
-        @keyframes burst3D {
-            0% {
-                transform: scale3d(1, 1, 1) rotate3d(1, 1, 0, 0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale3d(2, 2, 2) rotate3d(1, 1, 0, 180deg);
-                opacity: 0;
-            }
-        }
-        
-        .token-glow {
-            color: #FFD700 !important;
-            text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
-            animation: glowPulse 3s ease-in-out;
-        }
-        
-        @keyframes glowPulse {
-            0% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; }
-            25% { text-shadow: 0 0 15px #FFD700, 0 0 25px #FFD700, 0 0 35px #FFD700; color: white; }
-            50% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; color: #FFD700; }
-            75% { text-shadow: 0 0 15px #FFD700, 0 0 25px #FFD700, 0 0 35px #FFD700; color: white; }
-            100% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; color: inherit; }
-        }
-
-        /* Try Again animations */
-        .try-again-fade, .try-again-bounce, .try-again-slide, .try-again-shake {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
-            pointer-events: none;
-            color: #FFD700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            font-weight: bold;
-            font-size: 24px;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateX(-50%) scale(0.8); }
-            15% { opacity: 1; transform: translateX(-50%) scale(1.1); }
-            85% { opacity: 1; transform: translateX(-50%) scale(1); }
-            100% { opacity: 0; transform: translateX(-50%) scale(0.8); }
-        }
-
-        @keyframes bounce {
-            0% { transform: translateX(-50%) translateY(0); opacity: 0; }
-            15% { transform: translateX(-50%) translateY(-20px); opacity: 1; }
-            30% { transform: translateX(-50%) translateY(0); }
-            45% { transform: translateX(-50%) translateY(-10px); }
-            60% { transform: translateX(-50%) translateY(0); }
-            85% { opacity: 1; }
-            100% { transform: translateX(-50%) translateY(20px); opacity: 0; }
-        }
-
-        @keyframes slide {
-            0% { transform: translateX(-200%); opacity: 0; }
-            15% { transform: translateX(-50%); opacity: 1; }
-            85% { transform: translateX(-50%); opacity: 1; }
-            100% { transform: translateX(100%); opacity: 0; }
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(-50%) rotate(0); opacity: 0; }
-            15% { opacity: 1; }
-            20%, 40%, 60%, 80% { transform: translateX(-50%) rotate(5deg); }
-            30%, 50%, 70% { transform: translateX(-50%) rotate(-5deg); }
-            85% { opacity: 1; }
-            100% { transform: translateX(-50%) rotate(0); opacity: 0; }
-        }
-
-        @keyframes try-again-fade {
-            0% { opacity: 0; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        
-        @keyframes try-again-bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-20px); }
-            60% { transform: translateY(-10px); }
-        }
-        
-        @keyframes try-again-slide {
-            0% { transform: translateX(-100px); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes try-again-shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        @keyframes spark {
-            0% { transform: translate(0, 0) scale(0); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
-        }
-        
-        .lose-spark {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #FF4444;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: spark 0.5s ease-out forwards;
-        }
-    `;
-    document.head.appendChild(animationStyles);
-}
-
-const style = document.createElement('style');
-style.textContent = `
-    .coin-container {
-        perspective: 1000px;
-        margin: 20px auto;
-    }
-    
-    #coin {
-        width: 150px;
-        height: 150px;
-        position: relative;
-        transform-style: preserve-3d;
-    }
-
-    /* Main coin face styling */
-    #coin img {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-        border-radius: 50%;
-        filter: brightness(1.1) contrast(1.1);
-        box-shadow: 
-            inset 0 0 10px rgba(255,255,255,0.5),
-            0 0 15px rgba(255,215,0,0.5);
-    }
-
-    /* Coin edge - front rim */
-    #coin::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: linear-gradient(45deg, #b4a002, #e6ce67, #b4a002);
-        transform: translateZ(8px); /* Increased from 2px to 8px */
-        box-shadow: 
-            inset 0 0 10px rgba(0,0,0,0.5),
-            0 5px 20px rgba(0,0,0,0.3);
-        z-index: -1;
-    }
-
-    /* Coin edge - back rim */
-    #coin::after {
-        content: '';
-        position: absolute;
-        width: 96%;
-        height: 96%;
-        left: 2%;
-        top: 2%;
-        border-radius: 50%;
-        background: #b4a002;
-        transform: translateZ(-8px); /* Increased from -2px to -8px */
-        box-shadow: 
-            0 0 5px rgba(0,0,0,0.5),
-            inset 0 0 10px rgba(0,0,0,0.5);
-    }
-
-    /* Continuous edge ring */
-    #coin .edge {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        transform-style: preserve-3d;
-        border-radius: 50%;
-    }
-
-    #coin .edge::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 16px; /* Increased from 4px to 16px */
-        background: linear-gradient(to right,
-            #b4a002 0%,
-            #e6ce67 15%,
-            #b4a002 20%,
-            #e6ce67 35%,
-            #b4a002 40%,
-            #e6ce67 55%,
-            #b4a002 60%,
-            #e6ce67 75%,
-            #b4a002 80%,
-            #e6ce67 95%,
-            #b4a002 100%
-        );
-        transform-origin: center center;
-        transform: rotateX(90deg) translateZ(-8px); /* Adjusted to match new thickness */
-        top: 50%;
-        margin-top: -8px; /* Adjusted to half of height */
-        box-shadow: 
-            0 0 5px rgba(0,0,0,0.3),
-            inset 0 0 2px rgba(0,0,0,0.5);
-    }
-
-    /* Shine effect overlay */
-    .shine {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: linear-gradient(45deg, 
-            transparent 40%,
-            rgba(255,255,255,0.3) 45%,
-            rgba(255,255,255,0.5) 50%,
-            rgba(255,255,255,0.3) 55%,
-            transparent 60%
-        );
-        pointer-events: none;
-        z-index: 2;
-    }
-`;
-style.textContent += `
-    .result-message {
-        font-size: 3em;
-        color: #FFD700;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        margin-top: 20px;
-        display: none;
-        position: absolute;
-        top: 30%;
-        width: 25%;
-        font-weight: bold;
-    }
-`;
-document.head.appendChild(style);
-
+// Add this helper function for try again message
 function showTryAgainMessage() {
-    const resultMessage = document.getElementById('resultMessage');
+    const resultMessage = document.getElementById("resultMessage");
     resultMessage.textContent = "Try again!";
-    
-    // Random selection of messages and animations
-    const messages = [
-        "Try again champ!",
-        "Sorry Not this time!",
-        "You are Almost there!",
-        "Give it another Try!",
-        "Next time's the champ!"
-    ];
-    
-    const animations = [
-        'try-again-fade',
-        'try-again-bounce',
-        'try-again-slide',
-        'try-again-shake'
-    ];
-    
-    // Remove any existing animation classes
-    animations.forEach(anim => resultMessage.classList.remove(anim));
-    
-    // Select random message and animation
-    resultMessage.textContent = messages[Math.floor(Math.random() * messages.length)];
-    resultMessage.classList.add(animations[Math.floor(Math.random() * animations.length)]);
-    
-    // Show the message
-    resultMessage.style.display = 'block';
-    
-    // Add visual effects
-    resultMessage.style.color = '#FF4444';
-    resultMessage.style.textShadow = '0 0 10px rgba(255, 0, 0, 0.5)';
-    
-    // Create spark effect
-    createLoseSparkEffect();
-    
-    // Remove the animation class after it completes
+    resultMessage.style.display = "block";
     setTimeout(() => {
-        resultMessage.style.display = 'none';
-        animations.forEach(anim => resultMessage.classList.remove(anim));
-    }, 3000);
+        resultMessage.style.display = "none";
+    }, 2000); // Reduce timeout to 2 seconds
 }
 
-function createLoseSparkEffect() {
-    const coin = document.getElementById('coin');
-    const rect = coin.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+// Add this helper function for win message
+function showWinningAnimation(amount) {
+    const resultMessage = document.getElementById("resultMessage");
+    resultMessage.textContent = `YOU WON ${amount} TOKENS!`;
+    resultMessage.classList.add('win-animation');
+    resultMessage.style.display = "block";
     
-    // Create multiple sparks
-    for (let i = 0; i < 20; i++) {
-        const spark = document.createElement('div');
-        spark.className = 'lose-spark';
-        
-        // Random angle and distance
-        const angle = (Math.random() * Math.PI * 2);
-        const distance = Math.random() * 100 + 50;
-        
-        // Calculate end position
-        const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance;
-        
-        // Set position and animation variables
-        spark.style.left = `${centerX}px`;
-        spark.style.top = `${centerY}px`;
-        spark.style.setProperty('--tx', `${tx}px`);
-        spark.style.setProperty('--ty', `${ty}px`);
-        
-        document.body.appendChild(spark);
-        
-        // Remove spark after animation
-        setTimeout(() => spark.remove(), 500);
-    }
+    setTimeout(() => {
+        resultMessage.style.display = "none";
+        resultMessage.classList.remove('win-animation');
+    }, 2000); // Reduce timeout to 2 seconds
+}
+
+// Helper Functions
+function updateDisplay() {
+    document.getElementById('tokenCount').textContent = tokens;
+    document.getElementById('wagerAmount').textContent = wagerAmount;
+}
+
+function displayErrorMessage(message, type = 'error') {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.className = `error-message ${type}`;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 3000);
 }
