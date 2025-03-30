@@ -323,16 +323,25 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const fullPhoneNumber = `${countryCode}${phone}`;
 
     try {
+        // Disable submit button to prevent multiple attempts
+        const submitButton = document.getElementById('registerbt');
+        submitButton.disabled = true;
+        
+        // Clear any existing error messages
+        displayErrorMessage('', 'none');
+        
+        // Show loading state
+        displayErrorMessage('Sending verification code...', 'info');
+
         // Send verification code
         const confirmationResult = await window.signInWithPhoneNumber(window.auth, fullPhoneNumber, window.recaptchaVerifier);
-        
-        // Store confirmation result for later use
         window.confirmationResult = confirmationResult;
         
         // Prompt for verification code
         const code = prompt("Enter the verification code sent to your phone:");
         
         if (code) {
+            displayErrorMessage('Verifying code...', 'info');
             const result = await confirmationResult.confirm(code);
             
             // Create user document in Firestore
@@ -348,7 +357,33 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         }
     } catch (error) {
         console.error('Registration error:', error);
-        displayErrorMessage(error.message);
+        
+        // Handle specific error cases
+        let errorMessage;
+        switch (error.code) {
+            case 'auth/billing-not-enabled':
+                errorMessage = 'Phone authentication is currently unavailable. Please try again later.';
+                break;
+            case 'auth/invalid-phone-number':
+                errorMessage = 'Please enter a valid phone number.';
+                break;
+            case 'auth/quota-exceeded':
+                errorMessage = 'Too many requests. Please try again later.';
+                break;
+            case 'auth/user-disabled':
+                errorMessage = 'This account has been disabled.';
+                break;
+            case 'auth/operation-not-allowed':
+                errorMessage = 'Phone authentication is not enabled.';
+                break;
+            default:
+                errorMessage = error.message;
+        }
+        displayErrorMessage(errorMessage);
+    } finally {
+        // Re-enable submit button
+        const submitButton = document.getElementById('registerbt');
+        submitButton.disabled = false;
     }
 });
 
@@ -523,23 +558,41 @@ async function determineOutcome(choice) {
 function showTryAgainMessage() {
     const resultMessage = document.getElementById("resultMessage");
     resultMessage.textContent = "Try again!";
-    resultMessage.style.display = "block";
+    resultMessage.style.cssText = `
+        display: block;
+        font-size: 25px;
+        position: absolute;
+        left: 50%;
+        top: calc(50% + 100px); /* Position below the coin */
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        pointer-events: none;
+    `;
     setTimeout(() => {
-        resultMessage.style.display = "none";
-    }, 2000); // Reduce timeout to 2 seconds
+        resultMessage.style.display = 'none';
+    }, 2000);
 }
 
 // Add this helper function for win message
 function showWinningAnimation(amount) {
     const resultMessage = document.getElementById("resultMessage");
-    resultMessage.textContent = `YOU WON ${amount} TOKENS!`;
+    resultMessage.textContent = `CONGRATULATIONS YOU WON ${amount} TOKENS!`;
     resultMessage.classList.add('win-animation');
-    resultMessage.style.display = "block";
+    resultMessage.style.cssText = `
+        display: block;
+        font-size: 25px;
+        position: absolute;
+        left: 50%;
+        top: calc(50% + 100px); /* Position below the coin */
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        pointer-events: none;
+    `;
     
     setTimeout(() => {
-        resultMessage.style.display = "none";
+        resultMessage.style.display = 'none';
         resultMessage.classList.remove('win-animation');
-    }, 2000); // Reduce timeout to 2 seconds
+    }, 2000);
 }
 
 // Helper Functions
@@ -550,10 +603,35 @@ function updateDisplay() {
 
 function displayErrorMessage(message, type = 'error') {
     const errorDiv = document.getElementById('errorMessage');
+    if (!message) {
+        errorDiv.style.display = 'none';
+        return;
+    }
+    
     errorDiv.textContent = message;
     errorDiv.className = `error-message ${type}`;
+    
+    // Add appropriate styling based on message type
+    switch (type) {
+        case 'success':
+            errorDiv.style.backgroundColor = '#4CAF50';
+            break;
+        case 'info':
+            errorDiv.style.backgroundColor = '#2196F3';
+            break;
+        case 'error':
+            errorDiv.style.backgroundColor = '#f44336';
+            break;
+        default:
+            errorDiv.style.backgroundColor = '#f44336';
+    }
+    
     errorDiv.style.display = 'block';
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 3000);
+    
+    // Auto-hide success messages after 3 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 3000);
+    }
 }
