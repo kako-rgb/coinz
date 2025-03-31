@@ -710,7 +710,7 @@ border-radius: 5px;
 /* Responsive styles for forms */
 @media screen and (max-width: 768px) {
     .form {
-        width: 90%;
+        width: 50%;
         max-width: 100%;
         margin: 20px auto;
         left: 50%;
