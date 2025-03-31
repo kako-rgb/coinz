@@ -314,76 +314,54 @@ async function updateUserData() {
     }
 }
 
-// Replace the existing registration handler
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
+// Replace the phone authentication code
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const username = document.getElementById('username').value;
-    const countryCode = document.getElementById('registerCountryCode').value;
-    const phone = document.getElementById('phone').value;
-    const fullPhoneNumber = `${countryCode}${phone}`;
+    
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const countryCode = document.getElementById('countryCode').value;
+    const fullPhoneNumber = countryCode + phoneNumber;
 
     try {
-        // Disable submit button to prevent multiple attempts
-        const submitButton = document.getElementById('registerbt');
-        submitButton.disabled = true;
-        
-        // Clear any existing error messages
-        displayErrorMessage('', 'none');
-        
-        // Show loading state
-        displayErrorMessage('Sending verification code...', 'info');
+        // Create a new RecaptchaVerifier without visible badge
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'registerbt', {
+            'size': 'invisible',
+            'callback': (response) => {
+                // reCAPTCHA solved, allow signInWithPhoneNumber.
+            }
+        });
 
-        // Send verification code
-        const confirmationResult = await window.signInWithPhoneNumber(window.auth, fullPhoneNumber, window.recaptchaVerifier);
+        // Request SMS verification
+        const confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
         window.confirmationResult = confirmationResult;
         
-        // Prompt for verification code
-        const code = prompt("Enter the verification code sent to your phone:");
+        // Show OTP input field
+        document.getElementById('otpSection').style.display = 'block';
+        document.getElementById('registerbt').style.display = 'none';
         
-        if (code) {
-            displayErrorMessage('Verifying code...', 'info');
-            const result = await confirmationResult.confirm(code);
-            
-            // Create user document in Firestore
-            await window.db.collection('users').doc(result.user.uid).set({
-                username: username,
-                phone: fullPhoneNumber,
-                tokens: 0,
-                createdAt: new Date()
-            });
-            
-            hidePopup('registerForm');
-            displayErrorMessage("Registration successful!", "success");
-        }
     } catch (error) {
         console.error('Registration error:', error);
-        
-        // Handle specific error cases
-        let errorMessage;
-        switch (error.code) {
-            case 'auth/billing-not-enabled':
-                errorMessage = 'Phone authentication is currently unavailable. Please try again later.';
-                break;
-            case 'auth/invalid-phone-number':
-                errorMessage = 'Please enter a valid phone number.';
-                break;
-            case 'auth/quota-exceeded':
-                errorMessage = 'Too many requests. Please try again later.';
-                break;
-            case 'auth/user-disabled':
-                errorMessage = 'This account has been disabled.';
-                break;
-            case 'auth/operation-not-allowed':
-                errorMessage = 'Phone authentication is not enabled.';
-                break;
-            default:
-                errorMessage = error.message;
+        alert('Error sending verification code. Please try again.');
+        // Reset reCaptchaVerifier
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+            window.recaptchaVerifier = null;
         }
-        displayErrorMessage(errorMessage);
-    } finally {
-        // Re-enable submit button
-        const submitButton = document.getElementById('registerbt');
-        submitButton.disabled = false;
+    }
+});
+
+// Add OTP verification handler
+document.getElementById('verifyOTP').addEventListener('click', async function() {
+    const code = document.getElementById('otpInput').value;
+    try {
+        const result = await window.confirmationResult.confirm(code);
+        // User signed in successfully
+        const user = result.user;
+        alert('Phone number verified successfully!');
+        // Continue with your post-verification logic
+    } catch (error) {
+        console.error('OTP verification error:', error);
+        alert('Invalid verification code. Please try again.');
     }
 });
 
