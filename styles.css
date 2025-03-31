@@ -1,3 +1,9 @@
+html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -331,24 +337,21 @@ paymentForm
 
 /* Form Styling */
 .form {
-    width: 300px;
-    padding: 2em;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 0 1em;
-}
-
-.form h2 {
-    margin-bottom: 1em;
-    font-size: 1.5em;
-    text-align: center;
-}
-
-.form label {
-    margin-top: 1em;
-    font-weight: bold;
-    font-size: 0.9em;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    min-width: 280px;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    color: white;
+    transition: all 0.3s ease;
 }
 
 .form input, .form select {
@@ -439,6 +442,41 @@ border-radius: 5px;
         width: 100%; /* Full width on mobile */
         text-align: center;
         margin-top: 5px;
+    }
+
+    .form {
+        width: 85%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px;
+        margin: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .phone-input {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .country-code {
+        width: 100% !important;
+    }
+
+    nav {
+        padding: 0.5rem;
+        justify-content: center;
+    }
+
+    #maincont {
+        margin-top: 0;
+        padding: 10px;
+    }
+
+    body {
+        overflow-x: hidden;
+        width: 100%;
     }
 }
 
@@ -633,5 +671,39 @@ border-radius: 5px;
     .country-code {
         width: 100% !important;
     }
+}
+
+/* Add these at the end of your existing CSS */
+#otpSection {
+    margin-top: 20px;
+}
+
+#otpInput {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    box-sizing: border-box;
+}
+
+#verifyOTP {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#verifyOTP:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
 }
 
