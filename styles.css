@@ -717,7 +717,7 @@ border-radius: 5px;
         transform: translateX(-5%);
         position: fixed;
         top: 10%;
-        transform: translate(-50%, -50%);
+        transform: translate(-25%, -25%);
         overflow-y: auto;
         max-height: 90vh;
         padding: 15px;
