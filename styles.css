@@ -712,7 +712,7 @@ border-radius: 5px;
     .form {
         width: 50%;
         max-width: 50%;
-        margin: 5px auto;
+        margin: 15px auto;
         left: 1%;
         transform: translateX(-5%);
         position: fixed;
