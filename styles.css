@@ -714,7 +714,7 @@ border-radius: 5px;
         max-width: 50%;
         margin: 15px auto;
         left: 1%;
-        transform: translateX(-5%);
+        transform: translateX(-10%);
         position: fixed;
         top: 1%;
         transform: translate(-25%, -25%);
