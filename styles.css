@@ -713,7 +713,7 @@ border-radius: 5px;
         width: 50%;
         max-width: 50%;
         margin: 20px auto;
-        left: 50%;
+        left: 1%;
         transform: translateX(-5%);
         position: fixed;
         top: 10%;
