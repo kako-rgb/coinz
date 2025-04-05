@@ -35,21 +35,18 @@ function addWinAnimationStyles() {
         @keyframes glow {
             from {
                 text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px gold;
-                transform: scale(1);
+                transform: translateX(-50%) scale(1);
             }
             to {
                 text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px gold;
-                transform: scale(1.1);
+                transform: translateX(-50%) scale(1.1);
             }
         }
 
-        #tokenCount {
-            transition: color 0.3s ease;
-        }
-
-        #tokenCount.updating {
-            color: gold;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        #resultMessage {
+            transform-origin: center;
+            white-space: nowrap;
+            text-align: center;
         }
     `;
     document.head.appendChild(style);
@@ -137,6 +134,55 @@ function addHoverEffects() {
     document.head.appendChild(style);
 }
 
+// Add these animation styles first
+function addTryAgainAnimationStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeAnimation {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            20% { opacity: 1; transform: translate(-50%, 0); }
+            80% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, 20px); }
+        }
+
+        @keyframes smokeAnimation {
+            0% { opacity: 0; filter: blur(0); transform: translate(-50%, 0) scale(1); }
+            20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+            80% { opacity: 0.8; filter: blur(4px); transform: translate(-50%, -20px) scale(1.5); }
+            100% { opacity: 0; filter: blur(8px); transform: translate(-50%, -40px) scale(2); }
+        }
+
+        @keyframes waterAnimation {
+            0% { opacity: 1; transform: translate(-50%, 0); }
+            50% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); 
+                   filter: blur(4px) hue-rotate(180deg); }
+        }
+
+        @keyframes glitchAnimation {
+            0% { clip-path: inset(50% 0 30% 0); transform: translate(-50%, 0); }
+            20% { clip-path: inset(20% 0 60% 0); transform: translate(-52%, 2px); }
+            40% { clip-path: inset(40% 0 40% 0); transform: translate(-48%, -2px); }
+            60% { clip-path: inset(30% 0 50% 0); transform: translate(-51%, 1px); }
+            80% { clip-path: inset(10% 0 70% 0); transform: translate(-49%, -1px); }
+            100% { clip-path: inset(50% 0 30% 0); transform: translate(-50%, 0); }
+        }
+
+        .try-again-base {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: bold;
+            z-index: 1001;
+            pointer-events: none;
+            text-align: center;
+            width: 100%;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // Coin Animation Functions
 function startSlowSpin() {
     if (slowSpinInterval) return;
@@ -196,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addParticleBackground();
     addHoverEffects();
     setupCloseButtons();
+    addTryAgainAnimationStyles();
 
     // Update the token display text
     const tokenDisplay = document.querySelector('nav span');
@@ -626,23 +673,85 @@ async function determineOutcome(choice) {
 // Include your existing animation and UI helper functions here
 // (showWinningAnimation, applyTokenGlow, addWinAnimationStyles, etc.)
 
-// Add this helper function for try again message
+// Update the showTryAgainMessage function
 function showTryAgainMessage() {
+    const animations = ['fade', 'smoke', 'water', 'glitch'];
+    const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+    const coinContainer = document.getElementById("coinContainer");
+    const coinRect = coinContainer.getBoundingClientRect();
+    
     const resultMessage = document.getElementById("resultMessage");
     resultMessage.textContent = "Try again!";
+    resultMessage.className = `try-again-base try-again-${randomAnimation}`;
+    
+    // Position above coin container
     resultMessage.style.cssText = `
-        display: block;
-        font-size: 25px;
         position: absolute;
         left: 50%;
-        top: calc(50% + 100px); /* Position below the coin */
-        transform: translate(-50%, -50%);
-        z-index: 1;
+        top: ${coinRect.top - 50}px;
+        transform: translate(-50%, 0);
+        font-size: 36px;
+        font-weight: bold;
+        z-index: 1001;
         pointer-events: none;
     `;
+
+    // Create particles for water animation
+    if (randomAnimation === 'water') {
+        createWaterParticles(resultMessage, coinRect);
+    }
+
+    // Clean up after animation
     setTimeout(() => {
         resultMessage.style.display = 'none';
-    }, 2000);
+        resultMessage.className = '';
+    }, 3000);
+}
+
+// Add water particle effect
+function createWaterParticles(messageElement, coinRect) {
+    const particleCount = 20;
+    const centerX = coinRect.left + (coinRect.width / 2);
+    const centerY = coinRect.top + (coinRect.height / 2);
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+            position: fixed;
+            left: ${centerX}px;
+            top: ${centerY - 100}px;
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(180deg, #00f, #0ff);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+        `;
+
+        document.body.appendChild(particle);
+
+        const angle = (Math.random() * Math.PI * 2);
+        const velocity = 2 + Math.random() * 2;
+        let frame = 0;
+
+        const animate = () => {
+            frame++;
+            const progress = frame / 60;
+            const moveX = Math.cos(angle) * velocity * frame;
+            const moveY = Math.sin(angle) * velocity * frame + (progress * progress * 50);
+            
+            particle.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            particle.style.opacity = 1 - progress;
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                particle.remove();
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }
 }
 
 // Update the showWinningAnimation function
@@ -650,42 +759,47 @@ function showWinningAnimation(amount) {
     const resultMessage = document.getElementById("resultMessage");
     const tokenDisplay = document.getElementById("tokenCount");
     const coin = document.getElementById("coin");
-    const coinRect = coin.getBoundingClientRect();
+    const coinContainer = document.getElementById("coinContainer");
+    const coinRect = coinContainer.getBoundingClientRect();
     const tokenRect = tokenDisplay.getBoundingClientRect();
 
-    // Create floating numbers with larger size
+    // Create floating numbers
     const floatingNumber = document.createElement('div');
     floatingNumber.textContent = `+${amount}`;
     floatingNumber.style.cssText = `
         position: fixed;
         left: ${coinRect.left + coinRect.width/2}px;
         top: ${coinRect.top + coinRect.height/2}px;
-        font-size: 48px; // Increased from 24px
+        font-size: 48px;
         font-weight: bold;
         color: gold;
         text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
         z-index: 1000;
         pointer-events: none;
-        transition: all 2s ease-out; // Increased duration
-        transform: scale(1.2); // Start slightly larger
+        transition: all 2s ease-out;
+        transform: translate(-50%, -50%) scale(1.2);
     `;
     document.body.appendChild(floatingNumber);
 
-    // Display congratulations message above coin
+    // Center congratulations message above coin container
     resultMessage.textContent = `CONGRATULATIONS!`;
     resultMessage.classList.add('win-animation');
     resultMessage.style.cssText = `
         display: block;
-        font-size: 36px; // Increased from 25px
+        font-size: 36px;
         position: absolute;
         left: 50%;
-        top: calc(50% - 150px); // Moved above coin
-        transform: translate(-50%, -50%);
-        z-index: 1001; // Ensure it's above other elements
+        top: ${coinRect.top - 50}px;
+        width: 100%;
+        transform: translateX(-50%);
+        text-align: center;
+        z-index: 1001;
         pointer-events: none;
         color: gold;
         text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         font-weight: bold;
+        margin: 0;
+        padding: 0;
     `;
 
     // Create more particles with larger size
@@ -813,7 +927,7 @@ function hideRecaptcha() {
     const container = document.getElementById('recaptcha-container');
     const backdrop = document.getElementById('recaptcha-backdrop');
     if (container) container.style.display = 'none';
-    if (backdrop) backdrop.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'block';
 }
 
 function showRecaptcha() {
@@ -829,4 +943,4 @@ function resetRecaptcha() {
         window.recaptchaVerifier = null;
     }
     hideRecaptcha();
-}1
+}
