@@ -8,6 +8,7 @@ let attemptCount = 0;
 let baseWagerAmount = 0;
 let slowSpinInterval = null;
 let previousWagerAmount = 0;
+let winCount = 0; // Track total wins for bonus cycles
 
 // Add after your global variables
 
@@ -647,9 +648,15 @@ async function determineOutcome(choice) {
         
         if (outcome === choice) {
             const winAmount = wagerAmount * 2;
-            showWinningAnimation(winAmount);
+            winCount++; // Increment win counter
+            
+            // Check if this is a bonus cycle win (2nd, 4th, 8th, 16th...)
+            const isBonusWin = winCount > 0 && (winCount & (winCount - 1)) === 0;
+            const bonusAmount = isBonusWin ? Math.floor(winAmount * 0.5) : 0;
+            
+            showWinningAnimation(winAmount, bonusAmount);
             setTimeout(async () => {
-                tokens += winAmount;
+                tokens += winAmount + bonusAmount;
                 if (currentUser) {
                     await updateUserData();
                 }
@@ -755,7 +762,7 @@ function createWaterParticles(messageElement, coinRect) {
 }
 
 // Update the showWinningAnimation function
-function showWinningAnimation(amount) {
+function showWinningAnimation(amount, bonusAmount = 0) {
     const resultMessage = document.getElementById("resultMessage");
     const tokenDisplay = document.getElementById("tokenCount");
     const coin = document.getElementById("coin");
@@ -780,6 +787,39 @@ function showWinningAnimation(amount) {
         transform: translate(-50%, -50%) scale(1.2);
     `;
     document.body.appendChild(floatingNumber);
+
+    // Create bonus floating number if applicable
+    if (bonusAmount > 0) {
+        const floatingBonus = document.createElement('div');
+        floatingBonus.textContent = `BONUS +${bonusAmount}`;
+        floatingBonus.style.cssText = `
+            position: fixed;
+            left: ${coinRect.left + coinRect.width/2}px;
+            top: ${coinRect.top + coinRect.height/2 + 60}px;
+            font-size: 36px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+            z-index: 1000;
+            pointer-events: none;
+            transition: all 2s ease-out;
+            transform: translate(-50%, -50%) scale(1.2);
+        `;
+        document.body.appendChild(floatingBonus);
+
+        // Animate bonus floating up
+        setTimeout(() => {
+            floatingBonus.style.left = `${tokenRect.left + tokenRect.width/2}px`;
+            floatingBonus.style.top = `${tokenRect.top + tokenRect.height/2 + 30}px`;
+            floatingBonus.style.opacity = '0';
+            floatingBonus.style.transform = 'scale(1.5)';
+        }, 200);
+
+        // Clean up bonus after animation
+        setTimeout(() => {
+            floatingBonus.remove();
+        }, 5000);
+    }
 
     // Center congratulations message above coin container
     resultMessage.textContent = `CONGRATULATIONS!`;
@@ -816,7 +856,7 @@ function showWinningAnimation(amount) {
 
         // Start counting up the tokens
         const startTokens = tokens;
-        const endTokens = tokens + amount;
+        const endTokens = tokens + amount + (bonusAmount || 0);
         const duration = 2000; // Increased from 1000
         const fps = 60;
         const frames = duration / (1000 / fps);
