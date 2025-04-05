@@ -361,7 +361,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
     try {
         // Show recaptcha
-        document.getElementById('recaptcha-container').style.display = 'flex';
+        showRecaptcha();
         
         // Create a new RecaptchaVerifier
         if (!window.recaptchaVerifier) {
@@ -373,6 +373,9 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         const confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
         window.confirmationResult = confirmationResult;
         
+        // Hide recaptcha after successful verification
+        hideRecaptcha();
+        
         // Show OTP input field
         document.getElementById('otpSection').style.display = 'block';
         document.getElementById('registerbt').style.display = 'none';
@@ -380,6 +383,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     } catch (error) {
         console.error('Registration error:', error);
         displayErrorMessage(error.message);
+        hideRecaptcha();
         resetRecaptcha();
     }
 });
@@ -622,4 +626,43 @@ function displayErrorMessage(message) {
             errorElement.style.display = 'none';
         }, 5000); // Hide after 5 seconds
     }
+}
+
+// Add the initializeRecaptcha function
+window.initializeRecaptcha = (containerId) => {
+    const recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+        'size': 'normal',
+        'callback': (response) => {
+            console.log('reCAPTCHA solved');
+            // Hide both the container and backdrop
+            hideRecaptcha();
+        },
+        'expired-callback': () => {
+            console.log('reCAPTCHA expired');
+        }
+    });
+    return recaptchaVerifier;
+};
+
+// Add recaptcha visibility functions
+function hideRecaptcha() {
+    const container = document.getElementById('recaptcha-container');
+    const backdrop = document.getElementById('recaptcha-backdrop');
+    if (container) container.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'none';
+}
+
+function showRecaptcha() {
+    const container = document.getElementById('recaptcha-container');
+    const backdrop = document.getElementById('recaptcha-backdrop');
+    if (container) container.style.display = 'flex';
+    if (backdrop) backdrop.style.display = 'block';
+}
+
+function resetRecaptcha() {
+    if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+    }
+    hideRecaptcha();
 }
