@@ -23,11 +23,12 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 5px; /* Reduced from 1rem to 5px */
     background: rgba(0, 0, 0, 0.7);
     flex-wrap: wrap; /* Allow items to wrap on smaller screens */
     gap: 5px; /* Add space between wrapped items */
     box-sizing: border-box; /* Include padding in width calculation */
+    margin-bottom: 0; /* Ensure no bottom margin on nav */
 }
 .mbtn {
     background: linear-gradient(45deg, #2c3e50, #3498db);
@@ -107,7 +108,7 @@ nav {
     border: 2px solid rgba(255, 215, 0, 0.3);
 }
 #maincont{
-    margin-top: -55px; /* Adjust based on nav height */
+    margin-top: 5px; /* Change from -55px to 5px */
     padding: 0 10px; /* Add side padding */
     width: 100%;
     max-width: 1200px; /* Maximum width for larger screens */
@@ -220,13 +221,13 @@ paymentForm
 
 .container {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 0; /* Change from 5px to 0 since parent already has margin */
 }
 
 #coinContainer {
     width: 200px;
     height: 200px;
-    margin: auto;
+    margin: 5px auto; /* Changed from just auto to 5px auto */
     clear: both; /* Ensure it stays below the message */
 }
 
@@ -324,7 +325,7 @@ paymentForm
 .form-container {
     display: flex;
     justify-content: center;
-    margin-top: 2em;
+    margin-top: 0.5em;
 }
 
 /* Payment Container */
@@ -345,7 +346,7 @@ paymentForm
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    z-index: 9999;
+    z-index: 10000;
     min-width: 280px;
     max-width: 400px;
     width: 90%;
@@ -428,7 +429,7 @@ border-radius: 5px;
 @media screen and (max-width: 600px) {
     nav {
         justify-content: center; /* Center items on small screens */
-        padding: 0.5rem;
+        padding: 5px; /* Keep consistent 5px padding */
     }
 
     .mbtn {
@@ -465,13 +466,13 @@ border-radius: 5px;
     }
 
     nav {
-        padding: 0.5rem;
+        padding: 5px; /* Keep consistent 5px padding */
         justify-content: center;
     }
 
     #maincont {
-        margin-top: 0;
-        padding: 10px;
+        margin-top: 5px;
+        padding: 5px;
     }
 
     body {
@@ -548,7 +549,7 @@ border-radius: 5px;
     padding: 30px;
     border-radius: 0 0 15px 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    z-index: 9999; /* Highest z-index for forms */
+    z-index: 10000; /* Highest z-index for forms */
     min-width: 320px;
     max-width: 400px;
     width: 90%;
@@ -711,15 +712,15 @@ border-radius: 5px;
 @media screen and (max-width: 768px) {
     .form {
         width: 50%;
-        max-width: 50%;
+        max-width: 60%;
         margin: 15px auto;
         left: 1%;
-        transform: translateX(-10%);
+        transform: translateX(-50%);
         position: fixed;
-        top: 1%;
-        transform: translate(-25%, -25%);
+        top: 10%;
+        transform: translate(-50%, -40%);
         overflow-y: auto;
-        max-height: 60vh;
+        max-height: 90vh;
         padding: 15px;
     }
 
@@ -768,4 +769,25 @@ border-radius: 5px;
         margin-top: 10px;
         margin-bottom: 20px;
     }
+}
+
+.recaptcha-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10001; /* Higher than the form's z-index */
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: none; /* Hide by default */
+    justify-content: center;
+    align-items: center;
+}
+
+.recaptcha-container {
+    margin: 20px 0;
+    display: none; /* Hide by default */
+    justify-content: center;
 }

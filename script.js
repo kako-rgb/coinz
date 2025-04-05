@@ -220,46 +220,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const initializeSelects = async () => {
     try {
-        // Get user's location
-        const position = await getCurrentPosition();
-        const userCountry = await getUserCountry(position);
+        // Get country data with a fallback
+        const response = await fetch('https://restcountries.com/v3.1/all')
+            .catch(() => fetch('https://api.jsonbin.io/v3/b/YOUR_BACKUP_BIN_ID')); // Create a backup of country data
         
-        const response = await fetch('https://restcountries.com/v3.1/all');
+        if (!response.ok) {
+            throw new Error('Failed to load country data');
+        }
+        
         const countries = await response.json();
         
-        // Find user's country data
-        const userCountryData = countries.find(country => country.cca2 === userCountry);
-        
-        // Populate country codes
-        const countryCodesHTML = countries
-            .map(country => {
-                const dialCode = country.idd?.root + (country.idd?.suffixes?.[0] || '');
-                const selected = country.cca2 === userCountry ? 'selected' : '';
-                return `<option value="${dialCode}" ${selected}>${country.cca2} (${dialCode})</option>`;
-            })
-            .join('');
-        
-        document.querySelectorAll('.country-code').forEach(select => {
-            select.innerHTML = countryCodesHTML;
+        // Sort countries by name
+        const sortedCountries = countries.sort((a, b) => 
+            a.name.common.localeCompare(b.name.common)
+        );
+
+        // Get all select elements that need country codes
+        const selects = [
+            document.getElementById('loginCountryCode'),
+            document.getElementById('registerCountryCode'),
+            document.getElementById('paymentCountryCode')
+        ];
+
+        // Populate each select element if it exists
+        selects.forEach(select => {
+            if (select) {
+                // Clear existing options
+                select.innerHTML = '';
+                
+                sortedCountries.forEach(country => {
+                    if (country.idd && country.idd.root) {
+                        const option = document.createElement('option');
+                        const code = `${country.idd.root}${country.idd.suffixes ? country.idd.suffixes[0] : ''}`;
+                        option.value = code;
+                        option.textContent = `${country.name.common} (${code})`;
+                        select.appendChild(option);
+                    }
+                });
+            }
         });
-        
-        // Populate currencies with user's currency selected
-        const userCurrency = userCountryData?.currencies ? Object.keys(userCountryData.currencies)[0] : null;
-        const currenciesHTML = countries
-            .flatMap(country => {
-                if (!country.currencies) return [];
-                return Object.entries(country.currencies)
-                    .map(([code, currency]) => {
-                        const selected = code === userCurrency ? 'selected' : '';
-                        return `<option value="${code}" ${selected}>${code} - ${currency.name}</option>`;
-                    });
-            })
-            .join('');
-        
-        document.getElementById('currency').innerHTML = currenciesHTML;
+
     } catch (error) {
-        console.error('Error initializing selects:', error);
-        displayErrorMessage('Error loading country data');
+        console.error('Error loading country data:', error);
+        // Add fallback country codes
+        const fallbackCodes = [
+            { code: '+1', name: 'United States' },
+            { code: '+44', name: 'United Kingdom' },
+            { code: '+254', name: 'Kenya' },
+            // Add more common country codes as needed
+        ];
+
+        const selects = [
+            document.getElementById('loginCountryCode'),
+            document.getElementById('registerCountryCode'),
+            document.getElementById('paymentCountryCode')
+        ];
+
+        selects.forEach(select => {
+            if (select) {
+                select.innerHTML = fallbackCodes.map(country => 
+                    `<option value="${country.code}">${country.name} (${country.code})</option>`
+                ).join('');
+            }
+        });
     }
 };
 
@@ -318,18 +341,33 @@ async function updateUserData() {
 document.getElementById('registerForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const phoneNumber = document.getElementById('phoneNumber').value;
-    const countryCode = document.getElementById('countryCode').value;
-    const fullPhoneNumber = countryCode + phoneNumber;
+    const phoneInput = document.getElementById('registerPhoneNumber');
+    const countryCodeSelect = document.getElementById('registerCountryCode');
+    
+    if (!phoneInput || !countryCodeSelect) {
+        console.error('Required form elements not found');
+        return;
+    }
+
+    const phoneNumber = phoneInput.value;
+    const countryCode = countryCodeSelect.value;
+    
+    if (!phoneNumber || !countryCode) {
+        displayErrorMessage('Please enter both country code and phone number');
+        return;
+    }
+
+    const fullPhoneNumber = `${countryCode}${phoneNumber}`;
 
     try {
-        // Create a new RecaptchaVerifier without visible badge
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'registerbt', {
-            'size': 'invisible',
-            'callback': (response) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber.
-            }
-        });
+        // Show recaptcha
+        document.getElementById('recaptcha-container').style.display = 'flex';
+        
+        // Create a new RecaptchaVerifier
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = window.initializeRecaptcha('recaptcha-container');
+            await window.recaptchaVerifier.render();
+        }
 
         // Request SMS verification
         const confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
@@ -341,12 +379,8 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         
     } catch (error) {
         console.error('Registration error:', error);
-        alert('Error sending verification code. Please try again.');
-        // Reset reCaptchaVerifier
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
-            window.recaptchaVerifier = null;
-        }
+        displayErrorMessage(error.message);
+        resetRecaptcha();
     }
 });
 
@@ -579,39 +613,13 @@ function updateDisplay() {
     document.getElementById('wagerAmount').textContent = wagerAmount;
 }
 
-function displayErrorMessage(message, type = 'error') {
-    const errorDiv = document.getElementById('errorMessage');
-    if (!message) {
-        errorDiv.style.display = 'none';
-        return;
-    }
-    
-    errorDiv.textContent = message;
-    errorDiv.className = `error-message ${type}`;
-    
-    // Add appropriate styling based on message type
-    switch (type) {
-        case 'success':
-            errorDiv.style.backgroundColor = '#4CAF50';
-            break;
-        case 'info':
-            errorDiv.style.backgroundColor = '#2196F3';
-            break;
-        case 'error':
-            errorDiv.style.backgroundColor = '#f44336';
-            break;
-        default:
-            errorDiv.style.backgroundColor = '#f44336';
-    }
-    
-    errorDiv.style.display = 'block';
-    
-    // Auto-hide success messages after 3 seconds
-    if (type === 'success') {
+function displayErrorMessage(message) {
+    const errorElement = document.getElementById('errorMessage');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
         setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 3000);
+            errorElement.style.display = 'none';
+        }, 5000); // Hide after 5 seconds
     }
 }
-
-

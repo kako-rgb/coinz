@@ -43,12 +43,14 @@
             <h2 id="registerh">Register</h2>
             <label for="username">Username:</label>
             <input type="text" id="username" placeholder="Choose a username" required>
-            <label for="phone">Phone Number:</label>
-            <div class="phone-input">
-                <select id="registerCountryCode" class="country-code">
-                    <!-- Will be populated by JavaScript -->
+            <div class="form-group">
+                <label for="registerCountryCode">Country Code</label>
+                <select id="registerCountryCode" class="country-code" required>
+                    <!-- Options will be populated by initializeSelects() -->
                 </select>
-                <input type="tel" id="phone" placeholder="Enter phone number" required>
+                
+                <label for="registerPhoneNumber">Phone Number</label>
+                <input type="tel" id="registerPhoneNumber" required>
             </div>
             <label for="registerPassword">Password:</label>
             <input type="password" id="registerPassword" placeholder="Create a password" required>
@@ -108,6 +110,8 @@
         </form>
     </div>
 
+    <div id="recaptcha-backdrop" class="recaptcha-backdrop"></div>
+    <div id="recaptcha-container" class="recaptcha-container"></div>
 
     <div id="maincont" class="container">
         <div id="resultMessage" class="result-message"></div>
@@ -138,29 +142,54 @@
         <div id="resultMessage" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 1; pointer-events: none;"></div>
     </div>
     <script type="module">
-        // Import the functions you need from the SDKs you need
+        // Import the functions you need from the SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
         import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-    
+
         // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyCZwwhMT_6HLD7GzJQzU8zIM2YccypnmIk", 
+            apiKey: "AIzaSyCZwwhMT_6HLD7GzJQzU8zIM2YccypnmIk",
             authDomain: "coinspin.firebaseapp.com",
             projectId: "coinspin",
             storageBucket: "coinspin.firebasestorage.app",
             messagingSenderId: "455845963985",
             appId: "1:455845963985:web:4201a1b6f884e57c1dbdf0"
         };
-    
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-    
-        // Make auth and db available globally
-        window.auth = auth;
-        window.db = db;
+
+        try {
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            // Make auth and db available globally
+            window.auth = auth;
+            window.db = db;
+            
+            // Make Firebase functions available globally
+            window.signInWithPhoneNumber = signInWithPhoneNumber;
+            window.RecaptchaVerifier = RecaptchaVerifier;
+
+            // Initialize recaptcha function
+            window.initializeRecaptcha = (containerId) => {
+                const recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+                    'size': 'normal',
+                    'callback': (response) => {
+                        console.log('reCAPTCHA solved');
+                        hideRecaptcha();
+                    },
+                    'expired-callback': () => {
+                        console.log('reCAPTCHA expired');
+                        hideRecaptcha();
+                    }
+                });
+                return recaptchaVerifier;
+            };
+
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
     </script>
     <script src="script.js"></script>
 </body>
