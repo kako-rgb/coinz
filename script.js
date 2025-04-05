@@ -17,6 +17,9 @@ function setupCloseButtons() {
             const form = e.target.closest('.form');
             if (form) {
                 form.style.display = 'none';
+                if (form.id === 'passwordRecoveryForm') {
+                    resetRecaptcha();
+                }
             }
         });
     });
@@ -212,6 +215,48 @@ document.addEventListener('DOMContentLoaded', () => {
             tokenDisplay.firstChild.textContent = 'Demo Tokens: ';
             tokens = 10000;
             updateDisplay();
+        }
+    });
+
+    // Forgot password link handler
+    document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('passwordRecoveryForm').style.display = 'block';
+    });
+
+    // Back to login link handler
+    document.getElementById('back-to-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('passwordRecoveryForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+    });
+
+    // Update login success handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            // ...existing login logic...
+            
+            if (loginSuccess) { // Add this condition based on your authentication
+                document.getElementById('loginForm').style.display = 'none';
+                // Update UI for logged-in state
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+        }
+    });
+
+    // Update registration form handler
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            document.getElementById('registerForm').style.display = 'none';
+            showRecaptcha();
+            // ...existing registration logic...
+        } catch (error) {
+            console.error('Registration error:', error);
+            document.getElementById('registerForm').style.display = 'block';
         }
     });
 });
@@ -592,7 +637,7 @@ function showTryAgainMessage() {
 // Add this helper function for win message
 function showWinningAnimation(amount) {
     const resultMessage = document.getElementById("resultMessage");
-    resultMessage.textContent = `CONGRATULATIONS YOU WON ${amount} TOKENS!`;
+    resultMessage.textContent = `CONGRATULATIONS ${amount} WON`;
     resultMessage.classList.add('win-animation');
     resultMessage.style.cssText = `
         display: block;
