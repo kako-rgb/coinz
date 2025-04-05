@@ -613,3 +613,5 @@ function displayErrorMessage(message, type = 'error') {
         }, 3000);
     }
 }
+
+
