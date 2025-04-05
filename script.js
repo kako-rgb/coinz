@@ -34,11 +34,22 @@ function addWinAnimationStyles() {
         
         @keyframes glow {
             from {
-                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0ff;
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px gold;
+                transform: scale(1);
             }
             to {
-                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0ff;
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px gold;
+                transform: scale(1.1);
             }
+        }
+
+        #tokenCount {
+            transition: color 0.3s ease;
+        }
+
+        #tokenCount.updating {
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
     `;
     document.head.appendChild(style);
@@ -634,26 +645,134 @@ function showTryAgainMessage() {
     }, 2000);
 }
 
-// Add this helper function for win message
+// Update the showWinningAnimation function
 function showWinningAnimation(amount) {
     const resultMessage = document.getElementById("resultMessage");
-    resultMessage.textContent = `CONGRATULATIONS ${amount} WON`;
+    const tokenDisplay = document.getElementById("tokenCount");
+    const coin = document.getElementById("coin");
+    const coinRect = coin.getBoundingClientRect();
+    const tokenRect = tokenDisplay.getBoundingClientRect();
+
+    // Create floating numbers with larger size
+    const floatingNumber = document.createElement('div');
+    floatingNumber.textContent = `+${amount}`;
+    floatingNumber.style.cssText = `
+        position: fixed;
+        left: ${coinRect.left + coinRect.width/2}px;
+        top: ${coinRect.top + coinRect.height/2}px;
+        font-size: 48px; // Increased from 24px
+        font-weight: bold;
+        color: gold;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        z-index: 1000;
+        pointer-events: none;
+        transition: all 2s ease-out; // Increased duration
+        transform: scale(1.2); // Start slightly larger
+    `;
+    document.body.appendChild(floatingNumber);
+
+    // Display congratulations message above coin
+    resultMessage.textContent = `CONGRATULATIONS!`;
     resultMessage.classList.add('win-animation');
     resultMessage.style.cssText = `
         display: block;
-        font-size: 25px;
+        font-size: 36px; // Increased from 25px
         position: absolute;
         left: 50%;
-        top: calc(50% + 100px); /* Position below the coin */
+        top: calc(50% - 150px); // Moved above coin
         transform: translate(-50%, -50%);
-        z-index: 1;
+        z-index: 1001; // Ensure it's above other elements
         pointer-events: none;
+        color: gold;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        font-weight: bold;
     `;
-    
+
+    // Create more particles with larger size
+    for (let i = 0; i < 30; i++) { // Increased from 20
+        createWinParticle(coinRect.left + coinRect.width/2, coinRect.top + coinRect.height/2);
+    }
+
+    // Animate number floating up with longer duration
     setTimeout(() => {
+        floatingNumber.style.left = `${tokenRect.left + tokenRect.width/2}px`;
+        floatingNumber.style.top = `${tokenRect.top + tokenRect.height/2}px`;
+        floatingNumber.style.opacity = '0';
+        floatingNumber.style.transform = 'scale(1.5)'; // Larger end scale
+
+        // Start counting up the tokens
+        const startTokens = tokens;
+        const endTokens = tokens + amount;
+        const duration = 2000; // Increased from 1000
+        const fps = 60;
+        const frames = duration / (1000 / fps);
+        const increment = (endTokens - startTokens) / frames;
+        let currentFrame = 0;
+
+        const countUpInterval = setInterval(() => {
+            currentFrame++;
+            const currentAmount = Math.floor(startTokens + (increment * currentFrame));
+            tokenDisplay.textContent = currentAmount;
+            tokenDisplay.classList.add('updating');
+
+            if (currentFrame >= frames) {
+                clearInterval(countUpInterval);
+                tokenDisplay.textContent = endTokens;
+                tokenDisplay.classList.remove('updating');
+            }
+        }, 1000 / fps);
+    }, 200);
+
+    // Clean up after 5 seconds
+    setTimeout(() => {
+        floatingNumber.remove();
         resultMessage.style.display = 'none';
         resultMessage.classList.remove('win-animation');
-    }, 2000);
+    }, 5000); // Increased from 2000
+}
+
+// Update the particle animation to be larger and last longer
+function createWinParticle(x, y) {
+    const particle = document.createElement('div');
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 3 + Math.random() * 3; // Increased velocity
+    const size = Math.random() * 20 + 10; // Increased size
+    
+    particle.style.cssText = `
+        position: fixed;
+        left: ${x}px;
+        top: ${y}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle, gold 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 999;
+        filter: blur(1px);
+    `;
+    
+    document.body.appendChild(particle);
+    
+    let frame = 0;
+    const animate = () => {
+        frame++;
+        const progress = frame / 120; // Increased from 60 for longer animation
+        const moveX = Math.cos(angle) * velocity * frame;
+        const moveY = Math.sin(angle) * velocity * frame + (progress * progress * 150); // Increased height
+        const scale = 1.5 - progress; // Start larger
+        const opacity = 1 - progress;
+        
+        particle.style.transform = `translate(${moveX}px, ${moveY}px) scale(${scale})`;
+        particle.style.opacity = opacity;
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            particle.remove();
+        }
+    };
+    
+    requestAnimationFrame(animate);
 }
 
 // Helper Functions
@@ -710,4 +829,4 @@ function resetRecaptcha() {
         window.recaptchaVerifier = null;
     }
     hideRecaptcha();
-}
+}1

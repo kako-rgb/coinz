@@ -431,6 +431,18 @@ border-radius: 5px;
     text-align: center; /* Ensure text is centered */
 }
 
+#resultMessage {
+    transition: all 0.5s ease-out;
+    animation: messageFloat 5s ease-in-out;
+}
+
+@keyframes messageFloat {
+    0% { transform: translate(-50%, -60%); opacity: 0; }
+    10% { transform: translate(-50%, -50%); opacity: 1; }
+    90% { transform: translate(-50%, -50%); opacity: 1; }
+    100% { transform: translate(-50%, -40%); opacity: 0; }
+}
+
 /* Add responsive adjustments */
 @media screen and (max-width: 600px) {
     nav {
