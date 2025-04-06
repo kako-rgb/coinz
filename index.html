@@ -39,31 +39,28 @@
 
         <!-- Register Form -->
         <form id="registerForm" class="form">
-            <div class="close-btn">×</div>
             <h2 id="registerh">Register</h2>
-            <label for="username">Username:</label>
-            <input type="text" id="username" placeholder="Choose a username" required>
+            <div class="close-btn">&times;</div>
+            
             <input type="text" id="registerUsername" placeholder="Username" required>
-            <div class="form-group">
-                <label for="registerCountryCode">Country Code</label>
-                <select id="registerCountryCode" class="country-code" required>
-                    <!-- Options will be populated by initializeSelects() -->
-                </select>
-                
-                <label for="registerPhoneNumber">Phone Number</label>
-                <input type="tel" id="registerPhoneNumber" required>
-            </div>
-            <label for="registerPassword">Password:</label>
-            <input type="password" id="registerPassword" placeholder="Create a password" required>
+            
             <div class="checkbox-container">
                 <input type="checkbox" id="ageVerification" required>
                 <label for="ageVerification">I confirm that I am over 18 years old</label>
             </div>
-            <button id="registerbt" type="submit">Register</button>
+
+            <div class="phone-input">
+                <select id="registerCountryCode" class="country-code" required>
+                    <!-- Country codes will be populated by JavaScript -->
+                </select>
+                <input type="tel" id="registerPhoneNumber" placeholder="Phone Number" required>
+            </div>
+
+            <button type="submit" id="registerbt">Register</button>
+            
             <div id="otpSection" style="display: none;">
-                <label for="otpInput">Enter verification code:</label>
-                <input type="text" id="otpInput" placeholder="Enter 6-digit code">
-                <button type="button" id="verifyOTP">Verify Code</button>
+                <input type="text" id="otpInput" placeholder="Enter OTP" maxlength="6">
+                <button type="button" id="verifyOTP">Verify OTP</button>
             </div>
         </form>
         

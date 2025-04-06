@@ -317,11 +317,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const username = document.getElementById('registerUsername').value;
         const phoneInput = document.getElementById('registerPhoneNumber');
         const countryCodeSelect = document.getElementById('registerCountryCode');
         
-        if (!phoneInput || !countryCodeSelect) {
-            console.error('Required form elements not found');
+        if (!phoneInput || !countryCodeSelect || !username) {
+            displayErrorMessage('Please fill in all required fields');
             return;
         }
 
