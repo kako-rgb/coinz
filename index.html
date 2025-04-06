@@ -6,6 +6,7 @@
     <title>Coin Toss Game</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="./images/heads.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
   
@@ -120,7 +121,7 @@
         <div id="resultMessage" class="result-message"></div>
         
         <div id="coinContainer">
-            <img id="coin" src="./images/heads.png" alt="Coin" class="coin">
+            <div id="threejs-container"></div>
         </div>
 
         <div class="chips">
@@ -194,6 +195,7 @@
             console.error("Firebase initialization error:", error);
         }
     </script>
+    <script src="coinRenderer.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

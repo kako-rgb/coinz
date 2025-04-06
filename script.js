@@ -9,22 +9,7 @@ let baseWagerAmount = 0;
 let slowSpinInterval = null;
 let previousWagerAmount = 0;
 let winCount = 0; // Track total wins for bonus cycles
-
-// Add after your global variables
-
-function setupCloseButtons() {
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const form = e.target.closest('.form');
-            if (form) {
-                form.style.display = 'none';
-                if (form.id === 'passwordRecoveryForm') {
-                    resetRecaptcha();
-                }
-            }
-        });
-    });
-}
+let coinRenderer;
 
 function addWinAnimationStyles() {
     const style = document.createElement('style');
@@ -44,10 +29,20 @@ function addWinAnimationStyles() {
             }
         }
 
-        #resultMessage {
-            transform-origin: center;
-            white-space: nowrap;
-            text-align: center;
+        .updating {
+            color: gold !important;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8) !important;
+            transition: all 0.3s ease-out;
+        }
+
+        #tokenCount.updating {
+            animation: numberGlow 0.5s ease-in-out;
+        }
+
+        @keyframes numberGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
     `;
     document.head.appendChild(style);
@@ -59,83 +54,176 @@ function addHighlightStyles() {
         .highlight {
             animation: highlight 0.5s ease-in-out;
         }
-        
+
         @keyframes highlight {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+                text-shadow: none;
+            }
+            50% {
+                transform: scale(1.2);
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            }
+            100% {
+                transform: scale(1);
+                text-shadow: none;
+            }
         }
     `;
     document.head.appendChild(style);
 }
 
-// Add after your other animation style functions
-
 function addParticleBackground() {
     const style = document.createElement('style');
     style.textContent = `
-        .particle {
+        .particle-background {
             position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%);
+            border-radius: 50%;
             pointer-events: none;
             opacity: 0;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
-            animation: particle-animation 1s ease-out forwards;
+            animation: floatParticle 3s ease-in-out infinite;
         }
 
-        @keyframes particle-animation {
+        @keyframes floatParticle {
             0% {
-                transform: translate(0, 0) scale(0);
-                opacity: 1;
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
             }
             100% {
-                transform: translate(var(--tx), var(--ty)) scale(1);
+                transform: translateY(-100px) scale(1);
                 opacity: 0;
             }
         }
     `;
     document.head.appendChild(style);
 
-    function createParticle(x, y) {
+    const background = document.createElement('div');
+    background.className = 'particle-background';
+    document.body.appendChild(background);
+
+    // Create particles
+    function createParticle() {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
-        particle.style.width = '10px';
-        particle.style.height = '10px';
-        particle.style.setProperty('--tx', (Math.random() * 100 - 50) + 'px');
-        particle.style.setProperty('--ty', (Math.random() * 100 - 50) + 'px');
-        
-        document.body.appendChild(particle);
-        
-        setTimeout(() => particle.remove(), 1000);
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.width = particle.style.height = Math.random() * 20 + 10 + 'px';
+        particle.style.animationDelay = Math.random() * 2 + 's';
+        background.appendChild(particle);
+
+        // Remove particle after animation
+        setTimeout(() => {
+            particle.remove();
+        }, 3000);
     }
 
-    // Add click event listener to create particles
-    document.addEventListener('click', (e) => {
-        for (let i = 0; i < 5; i++) {
-            createParticle(e.clientX, e.clientY);
-        }
-    });
+    // Create particles periodically
+    setInterval(createParticle, 300);
 }
 
-// Also add this function since it's mentioned in your code but not defined
 function addHoverEffects() {
     const style = document.createElement('style');
     style.textContent = `
-        .mbtn:hover, button:hover {
-            transform: scale(1.05);
-            transition: transform 0.2s ease;
+        .mbtn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #3498db, #2c3e50);
         }
-        
-        .coin:hover {
-            filter: brightness(1.2);
-            transition: filter 0.2s ease;
+
+        .close-btn:hover {
+            background-color: rgba(255, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        #wagerAmount:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .form input:hover, .form select:hover {
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .form button:hover {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
     `;
     document.head.appendChild(style);
 }
 
-// Add these animation styles first
+function startSlowSpin() {
+    if (slowSpinInterval) {
+        clearInterval(slowSpinInterval);
+    }
+    
+    if (!isSpinning && coinRenderer && !coinRenderer.isSpinning) {
+        slowSpinInterval = setInterval(() => {
+            if (!isSpinning && !coinRenderer.isSpinning) {
+                coinRenderer.coin.rotation.y += 0.01;
+            }
+        }, 50);
+    }
+}
+
+function stopSlowSpin() {
+    if (slowSpinInterval) {
+        clearInterval(slowSpinInterval);
+        slowSpinInterval = null;
+    }
+    if (coinRenderer) {
+        coinRenderer.isSpinning = true; // Prevent slow spin from restarting
+    }
+}
+
+function setupCloseButtons() {
+    const closeButtons = document.querySelectorAll('.close-btn');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const form = button.closest('.form');
+            if (form) {
+                form.style.display = 'none';
+                // Reset any form fields
+                form.reset();
+                // Hide any error messages
+                const errorMessage = document.getElementById('errorMessage');
+                if (errorMessage) {
+                    errorMessage.style.display = 'none';
+                }
+                // Reset recaptcha if it exists
+                if (form.id === 'registerForm') {
+                    resetRecaptcha();
+                }
+                // Hide OTP section if visible
+                const otpSection = document.getElementById('otpSection');
+                if (otpSection) {
+                    otpSection.style.display = 'none';
+                }
+                // Show register button if hidden
+                const registerButton = document.getElementById('registerbt');
+                if (registerButton) {
+                    registerButton.style.display = 'block';
+                }
+            }
+        });
+    });
+}
+
 function addTryAgainAnimationStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -180,64 +268,35 @@ function addTryAgainAnimationStyles() {
             text-align: center;
             width: 100%;
         }
+
+        .try-again-fade {
+            animation: fadeAnimation 3s ease-in-out forwards;
+        }
+
+        .try-again-smoke {
+            animation: smokeAnimation 3s ease-out forwards;
+        }
+
+        .try-again-water {
+            animation: waterAnimation 3s ease-in-out forwards;
+        }
+
+        .try-again-glitch {
+            animation: glitchAnimation 0.2s steps(2) infinite;
+            color: red;
+            text-shadow: 2px 2px 4px rgba(255,0,0,0.5),
+                         -2px -2px 4px rgba(0,255,255,0.5);
+        }
     `;
     document.head.appendChild(style);
 }
 
-// Coin Animation Functions
-function startSlowSpin() {
-    if (slowSpinInterval) return;
-    
-    const coin = document.getElementById("coin");
-    let slowSpins = 0;
-    
-    slowSpinInterval = setInterval(() => {
-        coin.src = slowSpins % 2 === 0 ? "./images/heads.png" : "./images/tails.png";
-        coin.style.transform = `rotateY(${slowSpins * 180}deg)`;
-        slowSpins++;
-    }, 2000); // Slow rotation every 2 seconds
-}
-
-function stopSlowSpin() {
-    if (slowSpinInterval) {
-        clearInterval(slowSpinInterval);
-        slowSpinInterval = null;
-    }
-}
-
-// Modal Functions
-function openModal(modalType) {
-    if (!currentUser && modalType === 'deposit-tab') {
-        displayErrorMessage("Please login first");
-        return;
-    }
-
-    // Hide all forms first
-    const forms = ['loginForm', 'registerForm', 'paymentForm', 'passwordRecoveryForm'];
-    forms.forEach(form => document.getElementById(form).style.display = 'none');
-
-    // Show the appropriate form
-    switch (modalType) {
-        case 'login-tab':
-            document.getElementById('loginForm').style.display = 'block';
-            break;
-        case 'register-tab':
-            document.getElementById('registerForm').style.display = 'block';
-            break;
-        case 'deposit-tab':
-            document.getElementById('paymentForm').style.display = 'block';
-            break;
-    }
-}
-
-function hidePopup(formId) {
-    document.getElementById(formId).style.display = 'none';
-}
-
-// Initialize Firebase Auth observer
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize coin renderer
+    coinRenderer = new CoinRenderer();
+
     initializeSelects();
-    startSlowSpin();
+    startSlowSpin(); // This will now work
     addWinAnimationStyles();
     addHighlightStyles();
     addParticleBackground();
@@ -615,33 +674,6 @@ document.getElementById('paymentForm').addEventListener('submit', async (e) => {
 });
 
 // Game Logic
-function placeBet(amount) {
-    if (tokens >= amount) {
-        wagerAmount += amount;
-        tokens -= amount;
-        previousWagerAmount = wagerAmount;
-        updateDisplay();
-        
-        const wagerElement = document.getElementById("wagerAmount");
-        wagerElement.classList.remove('wager-glow');
-        void wagerElement.offsetWidth;
-        wagerElement.classList.add('wager-glow');
-    } else {
-        if (currentUser) {
-            displayErrorMessage("Insufficient balance. Please deposit to continue playing.");
-        } else {
-            displayErrorMessage("Insufficient demo tokens. Login to play with real money.");
-        }
-    }
-}
-
-function cancelBet() {
-    tokens += wagerAmount;
-    wagerAmount = 0;
-    previousWagerAmount = 0;
-    updateDisplay();
-}
-
 async function startCoinToss(choice) {
     if (wagerAmount <= 0) {
         if (previousWagerAmount > 0 && tokens >= previousWagerAmount) {
@@ -656,23 +688,38 @@ async function startCoinToss(choice) {
     if (isSpinning) return;
     
     isSpinning = true;
-    stopSlowSpin();
-
+    stopSlowSpin(); // Stop slow spin first
+    
     previousWagerAmount = wagerAmount;
 
-    const coin = document.getElementById("coin");
-    let spins = 0;
-    const maxSpins = 30;
-    const fastSpinInterval = setInterval(async () => {
-        coin.src = spins % 2 === 0 ? "./images/heads.png" : "./images/tails.png";
-        coin.style.transform = `rotateY(${spins * 180}deg)`;
-        spins++;
+    // Remove the old 2D coin animation and use the 3D coin renderer
+    if (coinRenderer) {
+        // Store initial rotation
+        const initialRotation = coinRenderer.coin.rotation.y;
+        let spins = 0;
+        const maxSpins = 30;
+        
+        // Make sure coinRenderer knows we're in rapid spin mode
+        coinRenderer.isSpinning = true;
+        
+        const spinInterval = setInterval(() => {
+            if (!isSpinning) {
+                clearInterval(spinInterval);
+                return;
+            }
+            
+            spins++;
+            coinRenderer.coin.rotation.y = initialRotation + (spins * Math.PI / 2);
 
-        if (spins >= maxSpins) {
-            clearInterval(fastSpinInterval);
-            await determineOutcome(choice);
-        }
-    }, 50);
+            if (spins >= maxSpins) {
+                clearInterval(spinInterval);
+                determineOutcome(choice);
+            }
+        }, 50);
+    } else {
+        // Fallback in case renderer isn't available
+        await determineOutcome(choice);
+    }
 }
 
 async function determineOutcome(choice) {
@@ -689,8 +736,7 @@ async function determineOutcome(choice) {
     const coin = document.getElementById("coin");
 
     setTimeout(async () => {
-        coin.src = outcome === "heads" ? "./images/heads.png" : "./images/tails.png";
-        coin.style.transform = `rotateY(${outcome === "heads" ? 0 : 180}deg)`;
+        coinRenderer.spinToSide(outcome);
         
         if (outcome === choice) {
             const winAmount = wagerAmount * 2;
@@ -717,9 +763,14 @@ async function determineOutcome(choice) {
             updateDisplay();
         }
 
-        // Remove the isSpinning flag immediately after outcome
-        isSpinning = false;
-        startSlowSpin();
+        // Reset spinning states after animation completes
+        setTimeout(() => {
+            isSpinning = false;
+            if (coinRenderer) {
+                coinRenderer.isSpinning = false;
+            }
+            startSlowSpin();
+        }, 1000);
     }, 200);
 }
 
@@ -1029,4 +1080,37 @@ function resetRecaptcha() {
         window.recaptchaVerifier = null;
     }
     hideRecaptcha();
+}
+
+// Add the placeBet function
+function placeBet(amount) {
+    if (isSpinning) {
+        displayErrorMessage("Please wait for current spin to complete");
+        return;
+    }
+
+    // Convert amount to number if it's a string
+    amount = Number(amount);
+
+    if (isNaN(amount) || amount <= 0) {
+        displayErrorMessage("Please enter a valid bet amount");
+        return;
+    }
+
+    if (amount > tokens) {
+        displayErrorMessage("Insufficient tokens");
+        return;
+    }
+
+    wagerAmount = amount;
+    tokens -= amount;
+    
+    // Update displays
+    updateDisplay();
+    
+    // Add highlight effect to wager amount
+    const wagerElement = document.getElementById('wagerAmount');
+    wagerElement.classList.remove('highlight');
+    void wagerElement.offsetWidth; // Trigger reflow
+    wagerElement.classList.add('highlight');
 }
