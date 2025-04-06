@@ -307,15 +307,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update registration form handler
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        
+        // Add age verification check
+        const ageVerified = document.getElementById('ageVerification').checked;
+        if (!ageVerified) {
+            displayErrorMessage('You must confirm that you are over 18 years old to register');
+            return;
+        }
+
+        const phoneInput = document.getElementById('registerPhoneNumber');
+        const countryCodeSelect = document.getElementById('registerCountryCode');
+        
+        if (!phoneInput || !countryCodeSelect) {
+            console.error('Required form elements not found');
+            return;
+        }
+
+        const phoneNumber = phoneInput.value;
+        const countryCode = countryCodeSelect.value;
+        
+        if (!phoneNumber || !countryCode) {
+            displayErrorMessage('Please enter both country code and phone number');
+            return;
+        }
+
+        const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+
         try {
-            document.getElementById('registerForm').style.display = 'none';
+            // Show recaptcha
             showRecaptcha();
-            // ...existing registration logic...
+            
+            // Create a new RecaptchaVerifier
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = window.initializeRecaptcha('recaptcha-container');
+                await window.recaptchaVerifier.render();
+            }
+
+            // Request SMS verification
+            const confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
+            window.confirmationResult = confirmationResult;
+            
+            // Hide recaptcha after successful verification
+            hideRecaptcha();
+            
+            // Show OTP input field
+            document.getElementById('otpSection').style.display = 'block';
+            document.getElementById('registerbt').style.display = 'none';
+            
         } catch (error) {
             console.error('Registration error:', error);
-            document.getElementById('registerForm').style.display = 'block';
+            displayErrorMessage(error.message);
+            hideRecaptcha();
+            resetRecaptcha();
         }
     });
 });

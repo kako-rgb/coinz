@@ -43,6 +43,7 @@
             <h2 id="registerh">Register</h2>
             <label for="username">Username:</label>
             <input type="text" id="username" placeholder="Choose a username" required>
+            <input type="text" id="registerUsername" placeholder="Username" required>
             <div class="form-group">
                 <label for="registerCountryCode">Country Code</label>
                 <select id="registerCountryCode" class="country-code" required>
@@ -54,6 +55,10 @@
             </div>
             <label for="registerPassword">Password:</label>
             <input type="password" id="registerPassword" placeholder="Create a password" required>
+            <div class="checkbox-container">
+                <input type="checkbox" id="ageVerification" required>
+                <label for="ageVerification">I confirm that I am over 18 years old</label>
+            </div>
             <button id="registerbt" type="submit">Register</button>
             <div id="otpSection" style="display: none;">
                 <label for="otpInput">Enter verification code:</label>
