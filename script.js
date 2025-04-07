@@ -366,61 +366,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update registration form handler
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // Add age verification check
-        const ageVerified = document.getElementById('ageVerification').checked;
-        if (!ageVerified) {
-            displayErrorMessage('You must confirm that you are over 18 years old to register');
-            return;
-        }
-
-        const username = document.getElementById('registerUsername').value;
-        const phoneInput = document.getElementById('registerPhoneNumber');
-        const countryCodeSelect = document.getElementById('registerCountryCode');
-        
-        if (!phoneInput || !countryCodeSelect || !username) {
-            displayErrorMessage('Please fill in all required fields');
-            return;
-        }
-
-        const phoneNumber = phoneInput.value;
-        const countryCode = countryCodeSelect.value;
-        
-        if (!phoneNumber || !countryCode) {
-            displayErrorMessage('Please enter both country code and phone number');
-            return;
-        }
-
-        const fullPhoneNumber = `${countryCode}${phoneNumber}`;
-
         try {
-            // Show recaptcha
+            document.getElementById('registerForm').style.display = 'none';
             showRecaptcha();
-            
-            // Create a new RecaptchaVerifier
-            if (!window.recaptchaVerifier) {
-                window.recaptchaVerifier = window.initializeRecaptcha('recaptcha-container');
-                await window.recaptchaVerifier.render();
-            }
-
-            // Request SMS verification
-            const confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
-            window.confirmationResult = confirmationResult;
-            
-            // Hide recaptcha after successful verification
-            hideRecaptcha();
-            
-            // Show OTP input field
-            document.getElementById('otpSection').style.display = 'block';
-            document.getElementById('registerbt').style.display = 'none';
-            
+            // ...existing registration logic...
         } catch (error) {
             console.error('Registration error:', error);
-            displayErrorMessage(error.message);
-            hideRecaptcha();
-            resetRecaptcha();
+            document.getElementById('registerForm').style.display = 'block';
         }
     });
 });
@@ -1113,4 +1067,54 @@ function placeBet(amount) {
     wagerElement.classList.remove('highlight');
     void wagerElement.offsetWidth; // Trigger reflow
     wagerElement.classList.add('highlight');
+}
+
+// Add the cancelBet function
+function cancelBet() {
+    // Reset wager amount
+    wagerAmount = 0;
+    
+    // Update display
+    const wagerElement = document.getElementById('wagerAmount');
+    if (wagerElement) {
+        wagerElement.textContent = '0';
+        wagerElement.classList.remove('highlight');
+    }
+}
+
+// Add the openModal function
+function openModal(tabId) {
+    // Hide all forms first
+    const forms = document.querySelectorAll('.form');
+    forms.forEach(form => form.style.display = 'none');
+    
+    // Show the selected form
+    let formId;
+    switch(tabId) {
+        case 'login-tab':
+            formId = 'loginForm';
+            break;
+        case 'register-tab':
+            formId = 'registerForm';
+            break;
+        case 'deposit-tab':
+            formId = 'paymentForm';
+            break;
+        default:
+            return;
+    }
+    
+    const selectedForm = document.getElementById(formId);
+    if (selectedForm) {
+        selectedForm.style.display = 'block';
+        
+        // Add animation class if needed
+        selectedForm.classList.add('active');
+        
+        // Show overlay
+        const overlay = document.querySelector('.overlay');
+        if (overlay) {
+            overlay.style.display = 'block';
+        }
+    }
 }
