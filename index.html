@@ -40,28 +40,30 @@
 
         <!-- Register Form -->
         <form id="registerForm" class="form">
+            <div class="close-btn">×</div>
             <h2 id="registerh">Register</h2>
-            <div class="close-btn">&times;</div>
-            
-            <input type="text" id="registerUsername" placeholder="Username" required>
-            
-            <div class="checkbox-container">
-                <input type="checkbox" id="ageVerification" required>
-                <label for="ageVerification">I confirm that I am over 18 years old</label>
-            </div>
-
-            <div class="phone-input">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Choose a username" required>
+            <div class="form-group">
+                <label for="registerCountryCode">Country Code</label>
                 <select id="registerCountryCode" class="country-code" required>
-                    <!-- Country codes will be populated by JavaScript -->
+                    <!-- Options will be populated by initializeSelects() -->
                 </select>
-                <input type="tel" id="registerPhoneNumber" placeholder="Phone Number" required>
+                
+                <label for="registerPhoneNumber">Phone Number</label>
+                <input type="tel" id="registerPhoneNumber" required>
             </div>
-
-            <button type="submit" id="registerbt">Register</button>
-            
+            <label for="registerPassword">Password:</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required>
+            <div class="age-checkbox">
+                <input type="checkbox" id="ageCheckbox" required>
+                <label for="ageCheckbox">I am over 18 years</label>
+            </div>
+            <button id="registerbt" type="submit">Register</button>
             <div id="otpSection" style="display: none;">
-                <input type="text" id="otpInput" placeholder="Enter OTP" maxlength="6">
-                <button type="button" id="verifyOTP">Verify OTP</button>
+                <label for="otpInput">Enter verification code:</label>
+                <input type="text" id="otpInput" placeholder="Enter 6-digit code">
+                <button type="button" id="verifyOTP">Verify Code</button>
             </div>
         </form>
         

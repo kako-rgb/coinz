@@ -506,9 +506,15 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     
     const phoneInput = document.getElementById('registerPhoneNumber');
     const countryCodeSelect = document.getElementById('registerCountryCode');
+    const ageCheckbox = document.getElementById('ageCheckbox');
     
-    if (!phoneInput || !countryCodeSelect) {
+    if (!phoneInput || !countryCodeSelect || !ageCheckbox) {
         console.error('Required form elements not found');
+        return;
+    }
+
+    if (!ageCheckbox.checked) {
+        displayErrorMessage('You must confirm you are over 18 years to register');
         return;
     }
 
