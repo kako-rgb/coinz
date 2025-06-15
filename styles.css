@@ -1,0 +1,1000 @@
+html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: url('./images/background2.jpg');
+    background-repeat: no-repeat;
+    height: 100vh; /* Full height of the viewport */
+    width: 100vw; /* Full width of the viewport */
+    background-size: cover;
+    color: white;
+}
+
+nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px; /* Reduced from 1rem to 5px */
+    background: rgba(0, 0, 0, 0.7);
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    gap: 5px; /* Add space between wrapped items */
+    box-sizing: border-box; /* Include padding in width calculation */
+    margin-bottom: 0; /* Ensure no bottom margin on nav */
+}
+.mbtn {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    border: none;
+    padding: 12px 24px;
+    color: white;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.mbtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mbtn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.3s ease;
+}
+
+.mbtn:hover::after {
+    animation: button-shine 0.5s ease-out;
+}
+
+@keyframes button-shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+#login-tab{
+    background-color: aqua;
+}
+#login-tab:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: aqua;
+    transform: scale(1.05);
+}
+#register-tab{
+    background-color: yellow;
+}
+#register-tab:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: yellow;
+    transform: scale(1.05);
+}
+
+#deposit-tab{
+    background-color: rgb(30, 255, 0);
+}
+#deposit-tab:hover {
+    background-color: white;
+    color: rgb(30, 255, 0);
+    transform: scale(1.05);
+}
+.modal{
+    display: none;
+}
+#tokenCount {
+    font-size: 1em;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    transition: all 0.3s ease;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+#maincont{
+    margin-top: 5px; /* Change from -55px to 5px */
+    padding: 0 10px; /* Add side padding */
+    width: 100%;
+    max-width: 1200px; /* Maximum width for larger screens */
+    box-sizing: border-box;
+}
+#loginForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: -330px;
+    transform: translateY(330px);
+}
+#paymentForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: -330px;
+    transform: translateY(330px);
+}
+#withdrawButton{
+    background-color:rgb(30, 255, 0);
+    font-size: 16px;
+    text-transform: uppercase;
+}
+#depositbtn{
+    background-color:aqua;
+    color: black;
+    font-weight: bolder;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+paymentForm
+#logh{
+    color: aqua;
+}
+#logsubmit{
+    background-color: aqua;
+    font-size: 16px;
+}
+#logsubmit:hover {
+    background-color: white;
+    color: aqua;
+    transform: scale(1.05);
+}
+#forgot-password-link{
+    color: red;
+}
+#registerForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: -370px;
+    transform: translateY(360px);
+}
+#registerh{
+    color: yellow;
+}
+#registerbt{
+    background-color: yellow;
+    color: black;
+}
+#registerbt:hover {
+    background-color: white;
+    color: black;
+    font-size: 16;
+    transform: scale(1.05);
+}
+#passwordRecoveryForm {
+    display: none;
+    background-color: rgba(255, 0, 0, 0.2);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    padding: 20px;
+    border-radius: 10px;
+}
+#pwdh{
+    color: yellow;
+    background-color: rgba(255, 0, 0, 0.5);
+    border-radius: 5px;
+}
+#recoverysubmit{
+    background-color: rgba(255, 0, 0, 0.5);
+}
+#back-to-login{
+    color: yellow;
+    font-weight: bold;
+    font-size: 16px;
+    background-color: rgba(255, 0, 0, 0.7);
+    border-radius: 5px;
+    padding: 10px;
+   
+
+}
+#paymentForm{
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.payment-container h2{
+    display: none;
+}
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
+
+.error-message.success {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.container {
+    text-align: center;
+    margin-top: 0; /* Change from 5px to 0 since parent already has margin */
+}
+
+#coinContainer {
+    width: 200px;
+    height: 200px;
+    margin: 5px auto; /* Changed from just auto to 5px auto */
+    clear: both; /* Ensure it stays below the message */
+}
+
+.coin {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+}
+
+.chips img {
+    width: 70px;
+    margin: 5px;
+    cursor: pointer;
+    animation: chipGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes chipGlow {
+    0% {
+        filter: brightness(100%) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+    }
+    25% {
+        filter: brightness(120%) drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+    }
+    50% {
+        filter: brightness(140%) drop-shadow(0 0 20px rgba(255, 215, 0, 1.4));
+    }
+    75% {
+        filter: brightness(120%) drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+    }
+    100% {
+        filter: brightness(100%) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+    }
+}
+
+/* Add staggered animation delay for each chip */
+.chips img:nth-child(1) { animation-delay: 0s; }
+.chips img:nth-child(2) { animation-delay: 0.05s; }
+.chips img:nth-child(3) { animation-delay: 0.1s; }
+.chips img:nth-child(4) { animation-delay: 0.15s; }
+.chips img:nth-child(5) { animation-delay: 0.2s; }
+.chips img:nth-child(6) { animation-delay: 0.25s; }
+
+/* Enhanced hover effect */
+.chips img:hover {
+    filter: brightness(140%) drop-shadow(0 0 30px rgba(255, 215, 0, 1.6));
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.betControl, .buttons {
+    margin: 10px;
+    
+}
+#cancelbet{
+    background-color: red;
+    color: white;
+    width: 150px;
+    height: 30px;
+    border: none;
+    border-radius: 5.5px;
+}
+#wagerAmount {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2ecc71;
+    text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    transition: all 0.3s ease;
+}
+
+@keyframes wagerGlow {
+    0% {
+        color: #2ecc71;
+        text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    }
+    50% {
+        color: #FFD700;
+        text-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FFD700;
+    }
+    100% {
+        color: #2ecc71;
+        text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    }
+}
+
+.wager-glow {
+    animation: wagerGlow 1.5s ease-in-out;
+}
+#CurrentWager{
+    font-size: 1rem;
+    color: yellow;
+    margin-top: 20px;
+}
+
+/* Form Container */
+.form-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5em;
+}
+
+/* Payment Container */
+.payment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2em;
+}
+
+/* Form Styling */
+.form {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    min-width: 280px;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.form input, .form select {
+    width: 100%;
+    padding: 0.5em;
+    margin-top: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form button {
+    width: 100%;
+    padding: 0.75em;
+    margin-top: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #333;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form button:hover {
+    background-color: #555;
+}
+
+.form .form-link {
+    margin-top: 1em;
+    text-align: center;
+}
+
+.form .form-link a {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.form .form-link a:hover {
+    text-decoration: underline;
+}
+
+#heads{
+background-color: rgba(0, 0, 0, 0.7);
+color: white;
+font-weight: bold;
+font-size: 20px;
+width: 100px;
+height: 40px;
+border-radius: 5px;
+}
+#tails{
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    width: 100px;
+    height: 40px;
+    border-radius: 5px;
+    }
+.result-message {
+    font-size: 3em;
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px; /* Add space between message and coin */
+    display: none;
+    position: relative; /* Change from absolute to relative */
+    width: 100%; /* Full width */
+    font-weight: bold;
+    text-align: center; /* Ensure text is centered */
+}
+
+#resultMessage {
+    transition: all 0.5s ease-out;
+    animation: messageFloat 5s ease-in-out;
+}
+
+@keyframes messageFloat {
+    0% { transform: translate(-50%, -60%); opacity: 0; }
+    10% { transform: translate(-50%, -50%); opacity: 1; }
+    90% { transform: translate(-50%, -50%); opacity: 1; }
+    100% { transform: translate(-50%, -40%); opacity: 0; }
+}
+
+/* Add responsive adjustments */
+@media screen and (max-width: 600px) {
+    nav {
+        justify-content: center; /* Center items on small screens */
+        padding: 5px; /* Keep consistent 5px padding */
+    }
+
+    .mbtn {
+        width: auto; /* Allow button width to adjust to content */
+        min-width: 70px; /* Set minimum width */
+        font-size: 12px; /* Slightly smaller text on mobile */
+        padding: 6px 8px;
+    }
+
+    #tokenCount {
+        width: 100%; /* Full width on mobile */
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .form {
+        width: 85%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px;
+        margin: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .phone-input {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .country-code {
+        width: 100% !important;
+    }
+
+    nav {
+        padding: 5px; /* Keep consistent 5px padding */
+        justify-content: center;
+    }
+
+    #maincont {
+        margin-top: 5px;
+        padding: 5px;
+    }
+
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+}
+
+/* Add glass morphism effect to containers */
+.glass-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Add particle background */
+#particle-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.floating-particle {
+    position: absolute;
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 50%;
+    animation: float 10s linear infinite;
+    animation-delay: var(--delay);
+    width: var(--size);
+    height: var(--size);
+}
+
+@keyframes float {
+    0% {
+        transform: translate(-100%, random(100%));
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(100vw, random(100%));
+        opacity: 0;
+    }
+}
+
+/* Overlay backdrop */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 9998; /* Just below the forms */
+    display: none;
+}
+
+/* Common styles for all popup forms */
+.form {
+    display: none;
+    position: absolute;
+    top: 60px; /* Position below menu */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 10000; /* Highest z-index for forms */
+    min-width: 320px;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    color: white;
+    transition: transform 0.3s ease-out;
+    transform: translateX(-50%) translateY(-100%);
+}
+
+.form.active {
+    transform: translateX(-50%) translateY(0);
+}
+
+
+/* Close button styling */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.5);
+}
+
+.close-btn:hover {
+    background: rgba(255, 0, 0, 0.7);
+}
+
+/* Form input styling */
+.form input,
+.form select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    box-sizing: border-box;
+}
+
+.form input:focus,
+.form select:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+/* Phone input container */
+.phone-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.country-code {
+    width: 120px !important; /* Override the 100% width */
+}
+
+/* Form labels */
+.form label {
+    display: block;
+    margin-top: 10px;
+    color: #FFD700;
+    font-weight: bold;
+}
+
+/* Form buttons */
+.form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Payment form specific styles */
+#paymentForm {
+    max-width: 500px; /* Slightly wider for payment form */
+}
+
+#visaFields {
+    border-top: 1px solid rgba(255, 215, 0, 0.3);
+    margin-top: 15px;
+    padding-top: 15px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 600px) {
+    .form {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .phone-input {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .country-code {
+        width: 100% !important;
+    }
+}
+
+/* Try Again Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+@keyframes floatUp {
+    0% { transform: translate(-50%, 0); }
+    100% { transform: translate(-50%, -20px); }
+}
+
+@keyframes confetti-fall {
+    0% { 
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(
+            calc(var(--random-x, 100) * 1px), 
+            100vh
+        ) rotate(calc(var(--random-rotate, 360) * 1deg));
+        opacity: 0;
+    }
+}
+
+@keyframes sparkle-move {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(var(--x, 0), var(--y, 0)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Try again message animations */
+.try-again-bounce {
+    animation: bounce 0.5s ease infinite alternate;
+}
+
+.try-again-pulse {
+    animation: pulse 1s ease infinite;
+}
+
+.try-again-shake {
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+.try-again-flip {
+    animation: flip 1s ease forwards;
+}
+
+@keyframes bounce {
+    from { transform: translate(-50%, 0) scale(1); }
+    to { transform: translate(-50%, -20px) scale(1.1); }
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, 0) scale(1); }
+    50% { transform: translate(-50%, 0) scale(1.1); }
+    100% { transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
+    25% { transform: translate(-50%, 0) rotate(-5deg); }
+    75% { transform: translate(-50%, 0) rotate(5deg); }
+}
+
+@keyframes flip {
+    0% { transform: translate(-50%, 0) perspective(400px) rotateY(0); }
+    50% { transform: translate(-50%, 0) perspective(400px) rotateY(180deg); }
+    100% { transform: translate(-50%, 0) perspective(400px) rotateY(360deg); }
+}
+
+/* Database Status Indicator */
+.db-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 10px 0 10px;
+    background-color: #ffa500; /* Orange by default */
+    box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.5);
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: help;
+    vertical-align: middle;
+}
+
+.db-status.connected {
+    background-color: #00ff00; /* Green when connected */
+    box-shadow: 0 0 10px 3px rgba(0, 255, 0, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.db-status::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.db-status:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(0, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+}
+
+/* Add these at the end of your existing CSS */
+#otpSection {
+    margin-top: 20px;
+}
+
+#otpInput {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    box-sizing: border-box;
+}
+
+#verifyOTP {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#verifyOTP:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Responsive styles for forms */
+@media screen and (max-width: 768px) {
+    .form {
+        width: 50%;
+        max-width: 60%;
+        margin: 15px auto;
+        left: 1%;
+        transform: translateX(-50%);
+        position: fixed;
+        top: 10%;
+        transform: translate(-50%, -40%);
+        overflow-y: auto;
+        max-height: 90vh;
+        padding: 15px;
+    }
+
+    .form-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .country-code {
+        width: 100% !important;
+    }
+
+    input[type="tel"],
+    input[type="text"],
+    input[type="password"],
+    select {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Prevent horizontal scroll */
+    body {
+        position: relative;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Adjust button sizes */
+    .form button {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    /* Make close button more accessible on mobile */
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        padding: 8px;
+        font-size: 1.2em;
+    }
+
+    /* Adjust form headings */
+    .form h2 {
+        font-size: 1.5em;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+}
+
+.recaptcha-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10001; /* Higher than the form's z-index */
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: none; /* Hide by default */
+    justify-content: center;
+    align-items: center;
+}
+
+.recaptcha-container {
+    margin: 20px 0;
+    display: none; /* Hide by default */
+    justify-content: center;
+}
+
+.form-link {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.form-link a {
+    color: yellow;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}
+
+#threejs-container {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+#threejs-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Age Checkbox Styles */
+.age-checkbox {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+}
+
+.age-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    accent-color: #FFD700;
+    cursor: pointer;
+}
+
+.age-checkbox label {
+    font-size: 14px;
+    color: #FFD700;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.age-checkbox:hover label {
+    color: white;
+}
+
+.age-checkbox input[type="checkbox"]:focus {
+    outline: 2px solid #FFD700;
+}
