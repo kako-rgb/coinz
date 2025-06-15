@@ -12,7 +12,7 @@ let winCount = 0; // Track total wins for bonus cycles
 let coinRenderer;
 let dbCheckInterval;
 const DB_CHECK_INTERVAL = 10000; // Check every 10 seconds
-const API_BASE_URL = 'http://localhost:3000'; // Update this if your backend is on a different URL
+const API_BASE_URL = 'https://coinz-tcfm.onrender.com'; // Render backend URL
 
 function addWinAnimationStyles() {
     const style = document.createElement('style');

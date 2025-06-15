@@ -3,7 +3,7 @@ const axios = require('axios');
 const User = require('./models/User');
 
 // Test configuration
-const BASE_URL = 'http://localhost:3000/auth';
+const BASE_URL = 'https://coinz-tcfm.onrender.com/auth';
 const TEST_PHONE = '+1234567890';
 const TEST_PASSWORD = 'test1234';
 
