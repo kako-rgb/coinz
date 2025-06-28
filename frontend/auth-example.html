@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coinz - Authentication Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: black;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .active {
+            display: block;
+        }
+        #message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Coinz Authentication Example</h1>
+    
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'register')">Register</button>
+        <button class="tablinks" onclick="openTab(event, 'login')">Login</button>
+        <button class="tablinks" onclick="openTab(event, 'forgot')">Forgot Password</button>
+    </div>
+
+    <!-- Register Tab -->
+    <div id="register" class="tabcontent" style="display: block;">
+        <h2>Register</h2>
+        <div id="registerMessage" class="message"></div>
+        <div class="form-group">
+            <label for="regPhone">Phone Number (with country code):</label>
+            <input type="text" id="regPhone" placeholder="+1234567890" required>
+        </div>
+        <div class="form-group">
+            <label for="regPassword">Password (min 8 characters):</label>
+            <input type="password" id="regPassword" minlength="8" required>
+        </div>
+        <div class="form-group">
+            <label id="puzzleQuestion">Loading puzzle...</label>
+            <input type="text" id="puzzleAnswer" placeholder="Your answer" required>
+        </div>
+        <button onclick="getPuzzle()">Refresh Puzzle</button>
+        <button onclick="register()">Register</button>
+    </div>
+
+    <!-- Login Tab -->
+    <div id="login" class="tabcontent">
+        <h2>Login</h2>
+        <div id="loginMessage" class="message"></div>
+        <div class="form-group">
+            <label for="loginPhone">Phone Number:</label>
+            <input type="text" id="loginPhone" placeholder="+1234567890" required>
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" required>
+        </div>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Forgot Password Tab -->
+    <div id="forgot" class="tabcontent">
+        <h2>Reset Password</h2>
+        <div id="forgotMessage" class="message"></div>
+        <div class="form-group">
+            <label for="resetPhone">Phone Number:</label>
+            <input type="text" id="resetPhone" placeholder="+1234567890" required>
+        </div>
+        <button onclick="requestPasswordReset()">Send Reset Link</button>
+        <div id="resetSection" style="display: none; margin-top: 20px;">
+            <div class="form-group">
+                <label for="resetToken">Reset Token (check your phone):</label>
+                <input type="text" id="resetToken" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" minlength="8" required>
+            </div>
+            <button onclick="resetPassword()">Reset Password</button>
+        </div>
+    </div>
+
+    <script>
+        // API base URL - update this to your backend URL
+        const API_BASE_URL = 'https://coinz-tcfm.onrender.com/auth';
+        
+        // Store the current puzzle data
+        let currentPuzzle = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            getPuzzle();
+        });
+
+        // Tab switching
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName('tabcontent');
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = 'none';
+            }
+            
+            const tablinks = document.getElementsByClassName('tablinks');
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(' active', '');
+            }
+            
+            document.getElementById(tabName).style.display = 'block';
+            evt.currentTarget.className += ' active';
+        }
+
+        // Show message helper function
+        function showMessage(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = isError ? 'error' : 'success';
+            element.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Get a new puzzle
+        async function getPuzzle() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/puzzle`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPuzzle = data;
+                    document.getElementById('puzzleQuestion').textContent = data.puzzle.question;
+                } else {
+                    showMessage('registerMessage', 'Failed to load puzzle', true);
+                }
+            } catch (error) {
+                showMessage('registerMessage', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Register a new user
+        async function register() {
+            const phoneNumber = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            const answer = document.getElementById('puzzleAnswer').value;
+            
+            if (!phoneNumber || !password || !answer) {
+                showMessage('registerMessage', 'All fields are required', true);
+                return;
+            }
+            
+            if (!currentPuzzle) {
+                showMessage('registerMessage', 'Please wait for the puzzle to load', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber,
+                        password,
+                        puzzleToken: currentPuzzle.puzzle.token,
+                        puzzleAnswer: answer,
+                        answerHash: currentPuzzle.answerHash
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('registerMessage', 'Registration successful! You can now log in.');
+                    // Clear form
+                    document.getElementById('regPhone').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('puzzleAnswer').value = '';
+                    // Get a new puzzle
+                    getPuzzle();
+                } else {
+                    showMessage('registerMessage', 'Registration failed: ' + (data.error || 'Unknown error'), true);
+                }
+            } catch (error) {
+                showMessage('registerMessage', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Login user
+        async function login() {
+            const phoneNumber = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!phoneNumber || !password) {
+                showMessage('loginMessage', 'Phone number and password are required', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber,
+                        password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('loginMessage', 'Login successful!');
+                    // Store the token in localStorage
+                    localStorage.setItem('token', data.token);
+                    // Redirect to dashboard or home page
+                    // window.location.href = '/dashboard';
+                } else {
+                    showMessage('loginMessage', 'Login failed: ' + (data.error || 'Invalid credentials'), true);
+                }
+            } catch (error) {
+                showMessage('loginMessage', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Request password reset
+        async function requestPasswordReset() {
+            const phoneNumber = document.getElementById('resetPhone').value;
+            
+            if (!phoneNumber) {
+                showMessage('forgotMessage', 'Phone number is required', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/request-password-reset`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phoneNumber })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // In a real app, you would send the token via SMS
+                    // For this example, we'll show the token input field
+                    document.getElementById('resetSection').style.display = 'block';
+                    showMessage('forgotMessage', 'If your phone number is registered, you will receive a reset token.');
+                } else {
+                    showMessage('forgotMessage', 'Failed to request password reset', true);
+                }
+            } catch (error) {
+                showMessage('forgotMessage', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Reset password
+        async function resetPassword() {
+            const phoneNumber = document.getElementById('resetPhone').value;
+            const token = document.getElementById('resetToken').value;
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!phoneNumber || !token || !newPassword) {
+                showMessage('forgotMessage', 'All fields are required', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber,
+                        token,
+                        newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('forgotMessage', 'Password reset successful! You can now log in with your new password.');
+                    // Clear form
+                    document.getElementById('resetPhone').value = '';
+                    document.getElementById('resetToken').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('resetSection').style.display = 'none';
+                } else {
+                    showMessage('forgotMessage', 'Failed to reset password: ' + (data.error || 'Unknown error'), true);
+                }
+            } catch (error) {
+                showMessage('forgotMessage', 'Error: ' + error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

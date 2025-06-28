@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Toss Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="./images/heads.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  
+<nav>
+    <button id="login-tab" class="mbtn" onclick="openModal('login-tab')">Login</button>
+    <button id="register-tab" class="mbtn" onclick="openModal('register-tab')">Sign Up</button>
+    <button id="deposit-tab" class="mbtn" onclick="openModal('deposit-tab')" style="display: none;">Account</button>
+    <button id="signout-tab" class="mbtn" onclick="signOut()" style="display: none;">Sign Out</button>
+    <div id="dbStatusIndicator" class="db-status" title="Database Status"></div>
+    <span id="tokenCount">10000 USD</span>
+</nav>
+
+    <div id="errorMessage" class="error-message"></div>
+  <!-- Login & Register Forms -->
+    <div class="form-container">
+        <!-- Login Form -->
+        <form id="loginForm" class="form">
+            <div class="close-btn">×</div>
+            <h2 id="logh">Login</h2>
+            <label for="loginPhone">Phone Number:</label>
+            <div class="phone-input">
+                <select id="loginCountryCode" class="country-code">
+                    <!-- Will be populated by JavaScript -->
+                </select>
+                <input type="tel" id="loginPhone" placeholder="Enter phone number" required>
+            </div>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <button id="logsubmit" type="submit">Login</button>
+            <p class="form-link"><a href="#" id="forgot-password-link">Forgot Password?</a></p>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="form">
+            <div class="close-btn">×</div>
+            <h2 id="registerh">Register</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Choose a username" 
+                       pattern="^[a-zA-Z0-9_]{3,20}$" required>
+                <div class="invalid-feedback">
+                    Username must be 3-20 characters long and can only contain letters, numbers, and underscores.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="registerCountryCode">Country Code</label>
+                <select id="registerCountryCode" class="form-control country-code" required>
+                    <!-- Options will be populated by initializeSelects() -->
+                </select>
+                
+                <label for="registerPhoneNumber">Phone Number</label>
+                <input type="tel" id="registerPhoneNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" 
+                       placeholder="Create a password (min 8 characters)" 
+                       minlength="8" required
+                       oninput="checkPasswordStrength(this.value)">
+                <div class="password-strength-meter">
+                    <div id="password-strength-fill" class="strength-meter-fill"></div>
+                </div>
+                <div id="password-strength-text" class="strength-text"></div>
+                <div class="invalid-feedback">
+                    Password must be at least 8 characters long and include a mix of letters, numbers, and symbols.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" class="form-control" 
+                       placeholder="Confirm your password" required
+                       oninput="checkPasswordMatch()">
+                <div id="confirm-password-feedback" class="invalid-feedback">
+                    Passwords do not match.
+                </div>
+            </div>
+            
+            <!-- Puzzle Section -->
+            <div id="puzzleSection" style="display: none;">
+                <label for="puzzleQuestion">Solve this puzzle to continue:</label>
+                <div id="puzzleQuestion" class="puzzle-question"></div>
+                <input type="number" id="puzzleAnswer" placeholder="Enter your answer" required>
+                <input type="hidden" id="puzzleToken">
+                <input type="hidden" id="answerHash">
+            </div>
+            
+            <div class="age-checkbox">
+                <input type="checkbox" id="ageCheckbox" onchange="togglePuzzleSection()">
+                <label for="ageCheckbox">I am over 18 years</label>
+            </div>
+            
+            <!-- Math Puzzle Section -->
+            <div id="puzzleSection" style="display: none; margin: 15px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                <p>Solve this simple math problem to continue:</p>
+                <div id="puzzleQuestion" style="margin: 10px 0; font-size: 1.2em; font-weight: bold;"></div>
+                <input type="number" id="puzzleAnswer2" placeholder="Enter your answer" style="width: 100%; padding: 8px; margin-bottom: 10px;" required>
+                <button type="button" onclick="generateNewPuzzle()" style="background: #444; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">
+                    Get New Puzzle
+                </button>
+                <div id="puzzleError" style="color: #ff6b6b; margin-top: 5px; display: none;">
+                    Incorrect answer. Please try again.
+                </div>
+            </div>
+            
+            <button id="registerbt" type="submit" style="margin-top: 15px;">Register</button>
+        </form>
+        
+        <!-- Password Recovery Form -->
+        <form id="passwordRecoveryForm" class="form" style="display: none;">
+            <div class="close-btn">×</div>
+            <h2 id="pwdh">Password Recovery</h2>
+            <div id="recoveryStep1">
+                <label for="recoveryPhone">Phone Number:</label>
+                <div class="phone-input">
+                    <select id="recoveryCountryCode" class="country-code">
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                    <input type="tel" id="recoveryPhone" placeholder="Enter phone number" required>
+                </div>
+                <button id="recoverysubmit" type="submit">Send Recovery Code</button>
+            </div>
+            <div id="recoveryStep2" style="display: none;">
+                <label for="recoveryToken">Recovery Code:</label>
+                <input type="text" id="recoveryToken" placeholder="Enter recovery code" required>
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" placeholder="Enter new password" required>
+                <button id="resetPasswordBtn" type="button">Reset Password</button>
+            </div>
+            <p class="form-link"><a href="#" id="back-to-login">Back to Login</a></p>
+        </form>
+    </div>
+
+    <!-- Account Section -->
+    <div class="payment-container">
+        <form id="paymentForm" class="form">
+            <div class="close-btn">×</div>
+            <h2>Account Management</h2>
+            
+            <!-- Payment Options Tab -->
+            <div class="account-tabs">
+                <button type="button" id="paymentTab" class="tab-button active">Payment</button>
+                <button type="button" id="passwordTab" class="tab-button">Change Password</button>
+            </div>
+            
+            <!-- Payment Section -->
+            <div id="paymentSection" class="tab-content">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" placeholder="Enter amount" required>
+                
+                <label for="paymentMethod">Payment Method:</label>
+                <select id="paymentMethod">
+                    <option value="mobile">Mobile Money</option>
+                    <option value="visa">Visa Card</option>
+                </select>
+                
+                <div id="mobileMoneyFields">
+                    <label for="phoneNumber">Phone Number:</label>
+                    <div class="phone-input">
+                        <select id="paymentCountryCode" class="country-code">
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                        <input type="tel" id="phoneNumber" placeholder="Enter phone number">
+                    </div>
+                </div>
+                
+                <label for="currency">Currency:</label>
+                <select id="currency">
+                    <!-- Will be populated by JavaScript -->
+                </select>
+                <div id="visaFields" style="display: none;">
+                    <label for="cardNumber">Card Number:</label>
+                    <input type="text" id="cardNumber" placeholder="Enter card number">
+                    <label for="expiryDate">Expiry Date:</label>
+                    <input type="text" id="expiryDate" placeholder="MM/YY">
+                    <label for="cvv">CVV:</label>
+                    <input type="text" id="cvv" placeholder="CVV">
+                </div>
+                <button type="submit" id="depositbtn">Deposit</button>
+                <button type="button" id="withdrawButton">Withdraw</button>
+            </div>
+            
+            <!-- Change Password Section -->
+            <div id="passwordSection" class="tab-content" style="display: none;">
+                <label for="currentPassword">Current Password:</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                <label for="newPasswordChange">New Password:</label>
+                <input type="password" id="newPasswordChange" placeholder="Enter new password" required>
+                <label for="confirmNewPassword">Confirm New Password:</label>
+                <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required>
+                <button type="button" id="changePasswordBtn">Change Password</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="maincont" class="container">
+        <!-- Game Messages Container -->
+        <div id="gameMessages" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div id="resultMessage" class="result-message"></div>
+            <div id="motivationMessage" class="motivation-message"></div>
+        </div>
+        
+        <div id="coinContainer">
+            <div id="threejs-container"></div>
+        </div>
+
+        <div class="chips">
+            <img src="./images/2.png" alt="2" onclick="placeBet(2)">
+            <img src="./images/5.png" alt="5" onclick="placeBet(5)">
+            <img src="./images/10.png" alt="10" onclick="placeBet(10)">
+            <img src="./images/25.png" alt="25" onclick="placeBet(25)">
+            <img src="./images/50.png" alt="50" onclick="placeBet(50)">
+            <img src="./images/100.png" alt="100" onclick="placeBet(100)">
+        </div>
+
+        <div class="betControl">
+            <button id="cancelbet" onclick="cancelBet()">CANCEL BET</button>
+            <span id="CurrentWager">  Current Wager: <span id="wagerAmount">0</span></span>
+        </div>
+
+        <div class="buttons">
+            <button id="heads" onclick="startCoinToss('heads')">HEADS</button>
+            <button id="tails" onclick="startCoinToss('tails')">TAILS</button>
+        </div>
+
+        <!-- Removed duplicate resultMessage div -->
+    </div>
+    <script src="coinRenderer.js"></script>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            const strengthMeter = document.getElementById('password-strength-fill');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            // Reset
+            let strength = 0;
+            let text = '';
+            let color = '';
+            
+            // Check password length
+            if (password.length >= 8) strength += 1;
+            
+            // Check for lowercase letters
+            if (password.match(/[a-z]+/)) strength += 1;
+            
+            // Check for uppercase letters
+            if (password.match(/[A-Z]+/)) strength += 1;
+            
+            // Check for numbers
+            if (password.match(/[0-9]+/)) strength += 1;
+            
+            // Check for special characters
+            if (password.match(/[!@#$%^&*(),.?":{}|<>]+/)) strength += 1;
+            
+            // Update the strength meter
+            const width = (strength / 5) * 100;
+            strengthMeter.style.width = `${width}%`;
+            
+            // Update text and color based on strength
+            switch(strength) {
+                case 0:
+                case 1:
+                    text = 'Very Weak';
+                    color = 'strength-weak';
+                    break;
+                case 2:
+                    text = 'Weak';
+                    color = 'strength-weak';
+                    break;
+                case 3:
+                    text = 'Fair';
+                    color = 'strength-fair';
+                    break;
+                case 4:
+                    text = 'Good';
+                    color = 'strength-good';
+                    break;
+                case 5:
+                    text = 'Strong';
+                    color = 'strength-strong';
+                    break;
+            }
+            
+            // Update the UI
+            strengthMeter.className = 'strength-meter-fill ' + color;
+            strengthText.textContent = text;
+            strengthText.style.color = getComputedStyle(document.documentElement)
+                .getPropertyValue('--' + color.replace('strength-', ''));
+        }
+        
+        // Check if passwords match
+        function checkPasswordMatch() {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const feedback = document.getElementById('confirm-password-feedback');
+            
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Passwords do not match');
+                feedback.style.display = 'block';
+            } else {
+                confirmPassword.setCustomValidity('');
+                feedback.style.display = 'none';
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = 'toast-message';
+            messageEl.textContent = message;
+            
+            const closeBtn = document.createElement('span');
+            closeBtn.className = 'toast-close';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = () => toast.remove();
+            
+            toast.appendChild(messageEl);
+            toast.appendChild(closeBtn);
+            container.appendChild(toast);
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        // Add loading state to buttons during form submission
+        function setButtonLoading(button, isLoading) {
+            const buttonEl = typeof button === 'string' ? document.getElementById(button) : button;
+            if (!buttonEl) return;
+            
+            const buttonText = buttonEl.querySelector('.button-text');
+            const spinner = buttonEl.querySelector('.loading-spinner');
+            
+            if (isLoading) {
+                buttonEl.disabled = true;
+                buttonEl.classList.add('btn-loading');
+                buttonText.style.visibility = 'hidden';
+                if (spinner) spinner.style.display = 'inline-block';
+            } else {
+                buttonEl.disabled = false;
+                buttonEl.classList.remove('btn-loading');
+                buttonText.style.visibility = 'visible';
+                if (spinner) spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
