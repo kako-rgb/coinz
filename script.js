@@ -1017,9 +1017,6 @@ function stopDbConnectionMonitor() {
         clearInterval(dbCheckInterval);
     }
 }
-fetch(API_URL, {
-  credentials: 'include'
-});
 
 // Authentication functions
 async function loadPuzzle() {
